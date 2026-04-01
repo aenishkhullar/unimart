@@ -1,6 +1,6 @@
 # UniMart 🛒
 
-A university-focused marketplace platform where students can buy, sell, and rent products.
+A full-stack MERN marketplace platform designed for university students to buy, sell, and rent products within their campus ecosystem.
 
 ## 🚀 Features
 
@@ -18,22 +18,28 @@ A university-focused marketplace platform where students can buy, sell, and rent
 - Database: MongoDB
 - Auth: JWT
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 client/ → React frontend  
-server/ → Node backend  
+server/ → Node.js backend  
+models/ → Database schemas  
+routes/ → API routes  
+controllers/ → Business logic 
 
-## ⚡ How to Run
+## ⚙️ Installation
 
-### Backend
-cd server  
-npm install  
-npm run dev  
+### Clone the repository
+git clone https://github.com/your-username/unimart.git
 
-### Frontend
-cd client  
-npm install  
-npm run dev  
+### Backend setup
+cd server
+npm install
+npm run dev
+
+### Frontend setup
+cd client
+npm install
+npm run dev 
 
 ## 👨‍💻 Author
 Aenish Khullar
