@@ -6,7 +6,10 @@ import Register from "./pages/Register";
 import CreateProduct from "./pages/CreateProduct";
 import ProductDetails from "./pages/ProductDetails";
 import EditProduct from "./pages/EditProduct";
+import MyOrders from "./pages/MyOrders";
+import SellerDashboard from "./pages/SellerDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
   return (
@@ -30,6 +33,22 @@ function App() {
           element={
             <ProtectedRoute>
               <EditProduct />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/my-orders" 
+          element={
+            <ProtectedRoute>
+              <MyOrders />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/seller-dashboard" 
+          element={
+            <ProtectedRoute>
+              <SellerDashboard />
             </ProtectedRoute>
           } 
         />

@@ -5,7 +5,7 @@ import Product from '../models/Product.js';
 // @access  Private
 export const createProduct = async (req, res) => {
   try {
-    const { title, description, price, category, type, rentDuration, deposit } = req.body;
+    const { title, description, price, category, type, rentDuration, deposit, image } = req.body;
 
     // Validate common required fields
     if (!title || !description || !price || !category || !type) {
@@ -46,6 +46,7 @@ export const createProduct = async (req, res) => {
       category,
       type,
       user: req.user._id,
+      image: image || undefined,
     };
 
     // Attach rent-specific fields only when type is 'rent'
@@ -191,7 +192,7 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    const { title, description, price, category, type } = req.body;
+    const { title, description, price, category, type, image } = req.body;
 
     // Apply only the fields that were sent
     if (title !== undefined) product.title = title;
@@ -207,6 +208,7 @@ export const updateProduct = async (req, res) => {
       }
       product.type = type;
     }
+    if (image !== undefined) product.image = image;
 
     const updatedProduct = await product.save();
 

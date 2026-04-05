@@ -3,267 +3,362 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-const Home = () => {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [submittedQuery, setSubmittedQuery] = useState('');
-    const [selectedType, setSelectedType] = useState('all');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const navigate = useNavigate();
+/* ─── Category config (updated list) ─── */
+const CATEGORIES = [
+  { name: 'Books',            value: 'Books',             icon: '📚', color: '#FFF3E0' },
+  { name: 'Dorm Essentials',  value: 'Dorm Essentials',   icon: '🛏️', color: '#E8F5E9' },
+  { name: 'Electronics',      value: 'Electronics',        icon: '💻', color: '#E3F2FD' },
+  { name: 'Stationery',       value: 'Stationery',         icon: '✏️', color: '#F3E5F5' },
+  { name: 'Clothing',         value: 'Clothing',           icon: '👕', color: '#FCE4EC' },
+  { name: 'Lifestyle',        value: 'Lifestyle',          icon: '🎯', color: '#E0F7FA' },
+  { name: 'Others',           value: 'Others',             icon: '📦', color: '#F5F5F5' },
+];
 
-    const fetchProducts = async (currentSearch = searchQuery, currentType = selectedType, currentCategory = selectedCategory) => {
-        try {
-            let queryParams = [];
-            if (currentSearch) {
-                queryParams.push(`search=${encodeURIComponent(currentSearch)}`);
-                queryParams.push(`keyword=${encodeURIComponent(currentSearch)}`);
-            }
-            if (currentType && currentType !== 'all') queryParams.push(`type=${encodeURIComponent(currentType)}`);
-            if (currentCategory) queryParams.push(`category=${encodeURIComponent(currentCategory)}`);
-            
-            const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
-            const url = `http://localhost:5000/api/products${queryString}`;
-            
-            const res = await axios.get(url);
-            
-            setProducts(res.data.data || res.data || []);
-            setLoading(false);
-            setError('');
-        } catch (err) {
-            setError(err.response?.data?.message || err.message || 'Failed to fetch products');
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        setSubmittedQuery(searchQuery);
-        fetchProducts(searchQuery, selectedType, selectedCategory);
-    };
-
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setSearchQuery(value);
-        if (value.trim() === '') {
-            setSubmittedQuery('');
-            fetchProducts('', selectedType, selectedCategory);
-        }
-    };
-
-    const handleTypeChange = (type) => {
-        setSelectedType(type);
-        fetchProducts(searchQuery, type, selectedCategory);
-    };
-
-    const handleCategoryChange = (e) => {
-        const category = e.target.value;
-        setSelectedCategory(category);
-        fetchProducts(searchQuery, selectedType, category);
-    };
-
-    if (loading) {
-        return (
-            <div className="home-container" style={{ textAlign: 'center', marginTop: '100px' }}>
-                <div style={{ fontSize: '1.5rem', color: '#6b7280' }}>Loading your marketplace...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="home-container" style={{ textAlign: 'center', marginTop: '100px' }}>
-                <div style={{ fontSize: '1.5rem', color: '#ef4444' }}>Error: {error}</div>
-            </div>
-        );
-    }
-
-    // Prepare Trending Products (first 4-6)
-    const trendingProducts = products.slice(0, 6);
-
-    const categories = [
-        { name: 'All Categories', value: '', icon: '🌟' },
-        { name: 'Books', value: 'Books', icon: '📚' },
-        { name: 'Electronics', value: 'Electronics', icon: '💻' },
-        { name: 'Accessories', value: 'Accessories', icon: '🎧' },
-        { name: 'Hostel Essentials', value: 'Hostel Essentials', icon: '🛏️' },
-        { name: 'Others', value: 'Others', icon: '📦' }
-    ];
-
-    return (
-        <div className="home-container">
-            {/* HERO SECTION */}
-            <section className="hero-section">
-                <h1 className="hero-title">Buy, Sell & Rent on Campus</h1>
-                <p className="hero-subtitle">Find books, electronics, and essentials from students near you</p>
-                <div className="hero-buttons">
-                    <button className="btn-primary" onClick={() => {
-                        const el = document.getElementById('search-grid');
-                        if(el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}>Browse Products</button>
-                    <button className="btn-secondary" onClick={() => navigate('/create-product')}>Create Listing</button>
-                </div>
-            </section>
-
-            {/* SEARCH & FILTERS SECTION */}
-            <section className="search-container" id="search-grid">
-                <form className="search-form" onSubmit={handleSearchSubmit}>
-                    <input 
-                        type="text" 
-                        className="search-input"
-                        placeholder="Search books, electronics, rentals..." 
-                        value={searchQuery}
-                        onChange={handleInputChange}
-                    />
-                    <button type="submit" className="btn-search">Search</button>
-                </form>
-
-                <div className="filter-pills">
-                    {['all', 'sell', 'rent'].map((type) => (
-                        <button
-                            key={type}
-                            className={`filter-pill ${selectedType === type ? 'active' : ''}`}
-                            onClick={() => handleTypeChange(type)}
-                            style={{ textTransform: 'capitalize' }}
-                        >
-                            {type}
-                        </button>
-                    ))}
-                    
-                    <select 
-                        className="category-select" 
-                        value={selectedCategory} 
-                        onChange={handleCategoryChange}
-                    >
-                        {categories.map(cat => (
-                            <option key={cat.value} value={cat.value}>{cat.name}</option>
-                        ))}
-                    </select>
-                </div>
-            </section>
-            
-            {/* SEARCH QUERY TEXT */}
-            {submittedQuery && (
-                <div className="search-results-text">
-                    Showing results for <span>'{submittedQuery}'</span>
-                </div>
-            )}
-
-            {/* CATEGORIES SECTION */}
-            {!submittedQuery && selectedType === 'all' && selectedCategory === '' && (
-                <section>
-                    <h2 className="section-title">Explore Categories</h2>
-                    <div className="categories-container">
-                        {categories.slice(1).map(cat => (
-                            <div 
-                                key={cat.value} 
-                                className="category-card"
-                                onClick={() => {
-                                    handleCategoryChange({ target: { value: cat.value } });
-                                }}
-                            >
-                                <div className="category-icon">{cat.icon}</div>
-                                <div className="category-name">{cat.name}</div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* TRENDING SECTION */}
-            {!submittedQuery && selectedType === 'all' && selectedCategory === '' && trendingProducts.length > 0 && (
-                 <section>
-                    <div className="trending-header">
-                         <h2 className="section-title" style={{ marginBottom: 0 }}>Trending on Campus</h2>
-                         <button className="btn-link" onClick={() => {
-                             const el = document.getElementById('search-grid');
-                             if(el) el.scrollIntoView({ behavior: 'smooth' });
-                         }}>View All &rarr;</button>
-                    </div>
-                    <div className="trending-scroll">
-                        {trendingProducts.map(product => (
-                            <div 
-                                key={`trending-${product._id || product.id}`} 
-                                className="product-card"
-                                onClick={() => navigate(`/product/${product._id || product.id}`)}
-                            >
-                                <div className="card-image-wrapper">
-                                    <div className={`badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
-                                        {product.type || 'Sell'}
-                                    </div>
-                                    <div className="card-image-icon">
-                                        {product.category === 'Books' ? '📚' : 
-                                         product.category === 'Electronics' ? '💻' : 
-                                         product.category === 'Accessories' ? '🎧' : 
-                                         product.category === 'Hostel Essentials' ? '🛏️' : '🛍️'}
-                                    </div>
-                                </div>
-                                <div className="card-content">
-                                    <div className="card-category">{product.category || 'Other'}</div>
-                                    <h3 className="card-title">{product.title}</h3>
-                                    <div className="card-footer">
-                                        <div className="card-price">${product.price}</div>
-                                        <button className="btn-view">View Details</button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                 </section>
-            )}
-
-            {/* PRODUCT GRID SECTION */}
-             <section>
-                {(submittedQuery || selectedType !== 'all' || selectedCategory !== '') && (
-                    <h2 className="section-title">Found Products</h2>
-                )}
-                
-                {products.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-icon">📂</div>
-                        <div className="empty-text">No products found</div>
-                        <div className="empty-subtext">Try adjusting your filters or search query.</div>
-                    </div>
-                ) : (
-                    <div className="product-grid">
-                        {products.map((product) => (
-                            <div 
-                                key={product._id || product.id} 
-                                className="product-card"
-                                onClick={() => navigate(`/product/${product._id || product.id}`)}
-                            >
-                                <div className="card-image-wrapper">
-                                    <div className={`badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
-                                        {product.type || 'Sell'}
-                                    </div>
-                                    <div className="card-image-icon">
-                                        {product.category === 'Books' ? '📚' : 
-                                         product.category === 'Electronics' ? '💻' : 
-                                         product.category === 'Accessories' ? '🎧' : 
-                                         product.category === 'Hostel Essentials' ? '🛏️' : '🛍️'}
-                                    </div>
-                                </div>
-                                <div className="card-content">
-                                    <div className="card-category">{product.category || 'Other'}</div>
-                                    <h3 className="card-title">{product.title}</h3>
-                                    <div className="card-footer">
-                                        <div className="card-price">${product.price}</div>
-                                        <button className="btn-view">View Details</button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-             </section>
-        </div>
-    );
+const CATEGORY_ICON_MAP = {
+  'Books':            '📚',
+  'Dorm Essentials':  '🛏️',
+  'Electronics':      '💻',
+  'Stationery':       '✏️',
+  'Clothing':         '👕',
+  'Lifestyle':        '🎯',
+  'Others':           '📦',
 };
 
+function getCategoryIcon(category) {
+  return CATEGORY_ICON_MAP[category] || '🛍️';
+}
+
+/* ─── Features data ─── */
+const FEATURES = [
+  {
+    icon: '🎓',
+    title: 'Built for Students',
+    desc: 'Tailored specifically for the campus ecosystem, addressing unique student logistics and budget constraints.',
+  },
+  {
+    icon: '♻️',
+    title: "Rent, Don't Just Buy",
+    desc: 'Save up to 80% by renting textbooks and seasonal items rather than purchasing them outright.',
+  },
+  {
+    icon: '🔒',
+    title: 'Safe Campus Transactions',
+    desc: 'Verified campus meet-up points and secure payment processing ensure every exchange is worry-free.',
+  },
+  {
+    icon: '🌱',
+    title: 'Sustainable Sharing',
+    desc: 'Join the circular economy. Reduce waste by passing on items to the next generation of students.',
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+   HOME COMPONENT
+   ═══════════════════════════════════════════════════════ */
+const Home = () => {
+  const [products, setProducts]     = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
+  const navigate = useNavigate();
+
+  /* ─── Fetch products ─── */
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/products');
+      setProducts(res.data.data || res.data || []);
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchProducts(); }, []);
+
+  /* ─── Loading state ─── */
+  if (loading) {
+    return (
+      <div className="home-page">
+        <div className="loading-state">
+          <div className="loading-spinner" />
+          <p className="loading-text">Loading your marketplace…</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── Error state ─── */
+  if (error) {
+    return (
+      <div className="home-page">
+        <div className="loading-state">
+          <p className="loading-text" style={{ color: '#ba1a1a' }}>⚠ {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const trendingProducts = products.slice(0, 8);
+
+  return (
+    <div className="home-page">
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <section className="hero-section">
+        <div className="hero-inner">
+
+          {/* — Left copy — */}
+          <div className="fade-up">
+            <span className="hero-eyebrow">The Curated Campus Exchange</span>
+            <h1 className="hero-title">
+              Buy, Sell &amp; <em>Rent</em>
+              <br />On Campus
+            </h1>
+            <p className="hero-subtitle">
+              Textbooks, gadgets, dorm essentials — discover amazing deals from
+              students just like you, right here on campus.
+            </p>
+
+            <div className="hero-cta-group">
+              <button
+                id="hero-browse-btn"
+                className="btn-hero-primary"
+                onClick={() => {
+                  document.getElementById('categories-section')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Browse Products →
+              </button>
+              <button
+                id="hero-list-btn"
+                className="btn-hero-secondary"
+                onClick={() => navigate('/create-product')}
+              >
+                List an Item
+              </button>
+            </div>
+
+            <div className="hero-stats">
+              <div>
+                <div className="hero-stat-number">{products.length}+</div>
+                <div className="hero-stat-label">Listings</div>
+              </div>
+              <div>
+                <div className="hero-stat-number">80%</div>
+                <div className="hero-stat-label">Avg. Savings</div>
+              </div>
+              <div>
+                <div className="hero-stat-number">100%</div>
+                <div className="hero-stat-label">Campus-Safe</div>
+              </div>
+            </div>
+          </div>
+
+          {/* — Right visual grid — */}
+          <div className="hero-visual">
+            {/* "Trending this week" badge now sits ABOVE the card grid */}
+            <div className="hero-badge-top">🔥 Trending this week</div>
+            <div className="hero-visual-card">
+              {[
+                { icon: '📚', label: 'Calculus Vol.2',    price: '$12' },
+                { icon: '💻', label: 'MacBook Air M1',    price: '$749' },
+                { icon: '🎧', label: 'Sony WH-1000XM4',  price: '$180' },
+                { icon: '🛏️', label: 'Retro Mini Fridge', price: '$35/mo' },
+              ].map((item) => (
+                <div key={item.label} className="hero-mini-product">
+                  <div className="hero-mini-icon">{item.icon}</div>
+                  <div className="hero-mini-label">{item.label}</div>
+                  <div className="hero-mini-price">{item.price}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ MAIN CONTENT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <main className="main-content" id="categories-section">
+
+        {/* ─── Explore Categories ─── */}
+        <section className="content-section">
+          <div className="section-header">
+            <div>
+              <div className="section-eyebrow">Explore</div>
+              <h2 className="section-title">Browse by Category</h2>
+            </div>
+          </div>
+          <div className="categories-grid">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.value}
+                id={`cat-btn-${cat.value.replace(/\s+/g, '-')}`}
+                className="category-card-btn"
+                style={{ '--cat-color': cat.color }}
+                onClick={() => navigate(`/products?category=${encodeURIComponent(cat.value)}`)}
+              >
+                <div className="category-card-icon">{cat.icon}</div>
+                <div className="category-card-name">{cat.name}</div>
+                <div className="category-card-arrow">→</div>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* ─── Trending section ─── */}
+        {trendingProducts.length > 0 && (
+          <section className="content-section">
+            <div className="section-header">
+              <div>
+                <div className="section-eyebrow">Hot right now</div>
+                <h2 className="section-title">Trending on Campus</h2>
+              </div>
+              <button
+                id="trending-see-all-btn"
+                className="btn-see-all"
+                onClick={() => navigate('/products')}
+              >
+                See all →
+              </button>
+            </div>
+
+            <div className="trending-scroll">
+              {trendingProducts.map((product) => (
+                <div
+                  key={`trending-${product._id || product.id}`}
+                  id={`trending-card-${product._id || product.id}`}
+                  className="trending-card"
+                  onClick={() => navigate(`/product/${product._id || product.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/product/${product._id || product.id}`)}
+                >
+                  <div className="trending-card-image">
+                    <span className={`card-img-badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
+                      {product.type === 'rent' ? 'Rent' : 'Sale'}
+                    </span>
+                    <img 
+                      src={product?.image || "https://via.placeholder.com/300"} 
+                      alt="product" 
+                      className="product-card-image" 
+                    />
+                  </div>
+                  <div className="trending-card-body">
+                    <div className="trending-card-category">{product.category || 'Other'}</div>
+                    <h3 className="trending-card-title">{product.title}</h3>
+                    <div className="trending-card-footer">
+                      <div className="card-price-label">${product.price}</div>
+                      <span className={`card-type-badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
+                        {product.type === 'rent' ? 'Rent' : 'Buy'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+      </main>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FEATURES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="features-section">
+        <div className="features-inner">
+          <div className="features-header">
+            <div className="section-eyebrow" style={{ textAlign: 'center' }}>Why UniMart</div>
+            <h2 className="section-title" style={{ textAlign: 'center', marginTop: '0.25rem' }}>
+              Built for student life
+            </h2>
+          </div>
+          <div className="features-grid">
+            {FEATURES.map((f) => (
+              <div key={f.title} className="feature-card">
+                <div className="feature-icon">{f.icon}</div>
+                <h3 className="feature-title">{f.title}</h3>
+                <p className="feature-desc">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ TESTIMONIAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="testimonial-section">
+        <div className="testimonial-inner">
+          <p className="testimonial-quote">
+            UniMart saved me $400 on my Engineering textbooks this semester.
+            It's a game changer for every student on campus.
+          </p>
+          <div className="testimonial-author">— SARAH K., YEAR 3</div>
+        </div>
+      </div>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ CTA BANNER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="cta-banner">
+        <div className="cta-banner-inner">
+          <div className="cta-banner-text">
+            <div className="cta-eyebrow">Have items to share?</div>
+            <h2>Turn unused gear into extra cash.</h2>
+            <p>List your first item in under 2 minutes. It's completely free.</p>
+          </div>
+          <button
+            id="cta-create-listing-btn"
+            className="btn-hero-primary"
+            onClick={() => navigate('/create-product')}
+          >
+            Become a Seller →
+          </button>
+        </div>
+      </div>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <footer className="editorial-footer">
+        <div className="editorial-footer-inner">
+          <div className="footer-top">
+            <div>
+              <div className="footer-brand-name">Uni<span>Mart</span></div>
+              <p className="footer-brand-desc">
+                The curated campus exchange for the next generation of scholars and makers.
+              </p>
+            </div>
+            <div>
+              <div className="footer-heading">Quick Links</div>
+              <ul className="footer-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Browse</a></li>
+                <li><a href="/create-product">List Product</a></li>
+              </ul>
+            </div>
+            <div>
+              <div className="footer-heading">Categories</div>
+              <ul className="footer-links">
+                <li><a href="/#">Books</a></li>
+                <li><a href="/#">Electronics</a></li>
+                <li><a href="/#">Dorm Essentials</a></li>
+                <li><a href="/#">Clothing</a></li>
+              </ul>
+            </div>
+            <div>
+              <div className="footer-heading">Support</div>
+              <ul className="footer-links">
+                <li><a href="/#">Help Center</a></li>
+                <li><a href="/#">Terms of Service</a></li>
+                <li><a href="/#">Privacy Policy</a></li>
+                <li><a href="/#">Safety Tips</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p className="footer-copyright">
+              © {new Date().getFullYear()} UniMart. All rights reserved.
+            </p>
+            <p className="footer-copyright">Made with ♥ for campus life</p>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  );
+};
 
 export default Home;

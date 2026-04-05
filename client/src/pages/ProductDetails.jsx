@@ -8,6 +8,14 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [orderStatus, setOrderStatus] = useState(null); // null | 'loading' | 'success' | 'error'
+    const [orderMessage, setOrderMessage] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [productOrders, setProductOrders] = useState([]);
+    const [updatingOrderId, setUpdatingOrderId] = useState(null);
+
+    const today = new Date().toISOString().split('T')[0];
 
     const userStr = localStorage.getItem('user');
     const currentUser = userStr ? JSON.parse(userStr) : null;
@@ -35,6 +43,24 @@ const ProductDetails = () => {
         fetchProduct();
     }, [id]);
 
+    useEffect(() => {
+        const fetchProductOrders = async () => {
+            if (product && currentUser && product.user && currentUser._id === (product.user._id || product.user)) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await axios.get(`http://localhost:5000/api/orders/product/${id}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setProductOrders(res.data.orders);
+                } catch (err) {
+                    console.error('Failed to fetch product orders:', err);
+                }
+            }
+        };
+
+        fetchProductOrders();
+    }, [product, currentUser, id]);
+
     const handleDelete = async () => {
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
@@ -48,6 +74,67 @@ const ProductDetails = () => {
                 console.error('Failed to delete product:', err);
                 alert(err.response?.data?.message || 'Failed to delete product.');
             }
+        }
+    };
+
+    const handleOrder = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setOrderMessage('Please log in to place an order.');
+            setOrderStatus('error');
+            return;
+        }
+        setOrderStatus('loading');
+        setOrderMessage('');
+        const payload = { productId: product._id };
+        
+        if (product.type === 'rent') {
+            if (!startDate || !endDate) {
+                setOrderMessage('Please select both start and end dates.');
+                setOrderStatus('error');
+                return;
+            }
+            if (new Date(startDate) >= new Date(endDate)) {
+                setOrderMessage('End date must be after start date.');
+                setOrderStatus('error');
+                return;
+            }
+            payload.rentStartDate = startDate;
+            payload.rentEndDate = endDate;
+        }
+
+        try {
+            const res = await axios.post(
+                'http://localhost:5000/api/orders',
+                payload,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setOrderStatus('success');
+            setOrderMessage(res.data.message || 'Order created successfully!');
+        } catch (err) {
+            setOrderStatus('error');
+            setOrderMessage(err.response?.data?.message || 'Failed to place order.');
+        }
+    };
+
+    const handleStatusUpdate = async (orderId, newStatus) => {
+        setUpdatingOrderId(orderId);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.put(
+                `http://localhost:5000/api/orders/${orderId}/status`,
+                { status: newStatus },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            // Update local state to reflect change
+            setProductOrders(prev => prev.filter(order => order._id !== orderId));
+            alert(res.data.message || `Order ${newStatus} successfully!`);
+        } catch (err) {
+            console.error('Failed to update order status:', err);
+            alert(err.response?.data?.message || 'Failed to update order status.');
+        } finally {
+            setUpdatingOrderId(null);
         }
     };
 
@@ -101,6 +188,14 @@ const ProductDetails = () => {
                 </div>
             </div>
 
+            <div className="product-image-container">
+                <img 
+                    src={product?.image || "https://via.placeholder.com/300"} 
+                    alt="product"
+                    className="product-main-image"
+                />
+            </div>
+
             <div style={{ marginBottom: '36px' }}>
                 <h3 style={{ color: '#34495e', marginBottom: '12px', fontSize: '20px' }}>Description</h3>
                 <p style={{ lineHeight: '1.8', color: '#555', fontSize: '16px', margin: 0, whiteSpace: 'pre-line' }}>
@@ -137,22 +232,160 @@ const ProductDetails = () => {
                     </div>
                 </div>
             )}
-            
+
+            {/* Pending Orders (Seller View) */}
+            {currentUser && product.user && currentUser._id === (product.user._id || product.user) && productOrders.length > 0 && (
+                <div style={{ marginTop: '36px', padding: '24px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '12px' }}>
+                    <h3 style={{ margin: '0 0 20px 0', color: '#34495e', fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '24px' }}>📋</span> Pending Orders
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {productOrders.map(order => (
+                            <div key={order._id} style={{ backgroundColor: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', border: '1px solid #e9ecef' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#2c3e50' }}>{order.user.name}</div>
+                                        <div style={{ fontSize: '14px', color: '#6c757d' }}>{order.user.email}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontWeight: 'bold', color: '#007bff' }}>${order.price}</div>
+                                        <div style={{ fontSize: '12px', color: '#adb5bd' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                                {order.type === 'rent' && order.rentStartDate && order.rentEndDate && (
+                                    <div style={{ fontSize: '13px', color: '#495057', backgroundColor: '#e7f3ff', padding: '8px', borderRadius: '4px', marginBottom: '12px' }}>
+                                        <strong>Rent:</strong> {new Date(order.rentStartDate).toLocaleDateString()} - {new Date(order.rentEndDate).toLocaleDateString()}
+                                    </div>
+                                )}
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button 
+                                        onClick={() => handleStatusUpdate(order._id, 'confirmed')}
+                                        disabled={updatingOrderId === order._id}
+                                        style={{ 
+                                            flex: 1, 
+                                            padding: '8px', 
+                                            backgroundColor: '#28a745', 
+                                            color: 'white', 
+                                            border: 'none', 
+                                            borderRadius: '4px', 
+                                            fontWeight: 'bold', 
+                                            cursor: updatingOrderId === order._id ? 'not-allowed' : 'pointer',
+                                            opacity: updatingOrderId === order._id ? 0.7 : 1
+                                        }}
+                                    >
+                                        Confirm
+                                    </button>
+                                    <button 
+                                        onClick={() => handleStatusUpdate(order._id, 'cancelled')}
+                                        disabled={updatingOrderId === order._id}
+                                        style={{ 
+                                            flex: 1, 
+                                            padding: '8px', 
+                                            backgroundColor: '#dc3545', 
+                                            color: 'white', 
+                                            border: 'none', 
+                                            borderRadius: '4px', 
+                                            fontWeight: 'bold', 
+                                            cursor: updatingOrderId === order._id ? 'not-allowed' : 'pointer',
+                                            opacity: updatingOrderId === order._id ? 0.7 : 1
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Rent Date Selection */}
+            {product.type === 'rent' && currentUser && product.user && currentUser._id !== product.user._id && (
+                <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f0faff', border: '1px solid #b8daff', borderRadius: '10px' }}>
+                    <h3 style={{ margin: '0 0 16px 0', color: '#004085', fontSize: '18px' }}>Select Rent Dates</h3>
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                        <div style={{ flex: '1 1 180px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#495057', fontWeight: 'bold' }}>Start Date</label>
+                            <input 
+                                type="date" 
+                                min={today}
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ced4da', fontSize: '14px' }}
+                            />
+                        </div>
+                        <div style={{ flex: '1 1 180px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#495057', fontWeight: 'bold' }}>End Date</label>
+                            <input 
+                                type="date" 
+                                min={startDate || today}
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ced4da', fontSize: '14px' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Order Feedback */}
+            {orderMessage && (
+                <div style={{
+                    marginTop: '16px',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    backgroundColor: orderStatus === 'success' ? '#d4edda' : '#f8d7da',
+                    color: orderStatus === 'success' ? '#155724' : '#721c24',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                }}>
+                    {orderMessage}
+                </div>
+            )}
+
             <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '2px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', color: '#495057', textDecoration: 'none', fontWeight: 'bold', padding: '10px 16px', backgroundColor: '#e9ecef', borderRadius: '6px', transition: 'background-color 0.2s' }}>
                     &larr; Back to Products
                 </Link>
                 
-                {currentUser && product.user && currentUser._id === product.user._id && (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <Link to={`/edit-product/${product._id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: '#212529', textDecoration: 'none', borderRadius: '6px', fontWeight: 'bold' }}>
-                            Edit
-                        </Link>
-                        <button onClick={handleDelete} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                            Delete
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    {/* Buy/Rent button – visible to logged-in non-owners */}
+                    {currentUser && product.user && currentUser._id !== product.user._id && (
+                        <button
+                            id="order-btn"
+                            onClick={handleOrder}
+                            disabled={orderStatus === 'loading' || orderStatus === 'success'}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: product.type === 'rent' ? '#17a2b8' : '#28a745',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontWeight: 'bold',
+                                cursor: orderStatus === 'loading' || orderStatus === 'success' ? 'not-allowed' : 'pointer',
+                                opacity: orderStatus === 'loading' || orderStatus === 'success' ? 0.7 : 1,
+                                transition: 'opacity 0.2s',
+                            }}
+                        >
+                            {orderStatus === 'loading'
+                                ? 'Placing Order…'
+                                : product.type === 'rent'
+                                ? '📦 Rent Now'
+                                : '🛒 Buy Now'}
                         </button>
-                    </div>
-                )}
+                    )}
+
+                    {currentUser && product.user && currentUser._id === product.user._id && (
+                        <>
+                            <Link to={`/edit-product/${product._id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: '#212529', textDecoration: 'none', borderRadius: '6px', fontWeight: 'bold' }}>
+                                Edit
+                            </Link>
+                            <button onClick={handleDelete} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                                Delete
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );

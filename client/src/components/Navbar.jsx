@@ -1,84 +1,143 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import '../pages/Home.css';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  // useLocation is used to reliably trigger a re-render when route changes
-  // so the Navbar updates its auth state (reading localStorage) automatically on login/logout navigation
-  const location = useLocation();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef   = useRef(null);
 
-  const token = localStorage.getItem('token');
+  const token      = localStorage.getItem('token');
   const userString = localStorage.getItem('user');
-  let user = null;
+  let user         = null;
 
   try {
-    if (userString) {
-      user = JSON.parse(userString);
-    }
+    if (userString) user = JSON.parse(userString);
   } catch (e) {
-    console.error("Failed to parse user from localStorage", e);
+    console.error('Failed to parse user from localStorage', e);
   }
+
+  /* Close dropdown when clicking outside */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  /* Close on route change */
+  useEffect(() => { setMenuOpen(false); }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setMenuOpen(false);
     navigate('/login');
   };
 
-  const navStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1rem 2rem',
-    backgroundColor: '#333',
-    color: '#fff',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    fontFamily: 'sans-serif'
-  };
-
-  const linkStyle = {
-    color: '#fff',
-    textDecoration: 'none',
-    marginLeft: '1rem',
-    fontSize: '16px'
-  };
-
-  const logoutBtnStyle = {
-    backgroundColor: '#dc3545',
-    color: '#fff',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    marginLeft: '1rem',
-    fontSize: '16px',
-    fontWeight: 'bold'
+  /* Generate initials for avatar */
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
   return (
-    <nav style={navStyle}>
-      <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-        <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>UniMart</Link>
-      </div>
-      
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {token ? (
-          <>
-            <span style={{ marginRight: '1rem', color: '#ccc', fontSize: '16px' }}>
-              Welcome, {user?.name || 'User'}
-            </span>
-            <Link to="/" style={linkStyle}>Home</Link>
-            <Link to="/create-product" style={linkStyle}>Create Product</Link>
-            <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
-          </>
-        ) : (
-          <>
-            <Link to="/login" style={linkStyle}>Login</Link>
-            <Link to="/register" style={linkStyle}>Register</Link>
-          </>
-        )}
-      </div>
-    </nav>
+    <header className="editorial-nav">
+      <nav className="editorial-nav-inner" aria-label="Main navigation">
+
+        {/* ─── Brand ─── */}
+        <Link to="/" className="nav-brand" id="nav-brand-link">
+          Uni<span>Mart</span>
+        </Link>
+
+        {/* ─── Centre links ─── */}
+        <div className="nav-links">
+          <Link to="/" id="nav-home-link" className="nav-link">Home</Link>
+          <a href="/products" id="nav-browse-link" className="nav-link">Browse</a>
+          {token && (
+            <Link to="/create-product" id="nav-list-link" className="nav-link">
+              List Item
+            </Link>
+          )}
+        </div>
+
+        {/* ─── Auth actions ─── */}
+        <div className="nav-actions">
+          {token ? (
+            <div className="nav-profile-wrapper" ref={menuRef}>
+              {/* Circular avatar button */}
+              <button
+                id="nav-profile-btn"
+                className="nav-avatar-btn"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-label="Profile menu"
+                aria-expanded={menuOpen}
+              >
+                <span className="nav-avatar-initials">
+                  {getInitials(user?.name)}
+                </span>
+                <span className="nav-avatar-chevron" style={{
+                  transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s ease',
+                }}>
+                  ▾
+                </span>
+              </button>
+
+              {/* Dropdown menu */}
+              {menuOpen && (
+                <div className="nav-profile-dropdown" role="menu">
+                  <div className="nav-dropdown-header">
+                    <div className="nav-dropdown-avatar">
+                      {getInitials(user?.name)}
+                    </div>
+                    <div>
+                      <div className="nav-dropdown-name">{user?.name || 'Student'}</div>
+                      <div className="nav-dropdown-email">{user?.email || ''}</div>
+                    </div>
+                  </div>
+                  <div className="nav-dropdown-divider" />
+                  <Link to="/my-orders" id="nav-my-orders-link" className="nav-dropdown-item" role="menuitem">
+                    <span>🛍️</span> My Orders
+                  </Link>
+                  <Link to="/seller-dashboard" id="nav-seller-dashboard-link" className="nav-dropdown-item" role="menuitem">
+                    <span>📈</span> Seller Dashboard
+                  </Link>
+                  <div className="nav-dropdown-divider" />
+                  <Link to="/create-product" className="nav-dropdown-item" role="menuitem">
+                    <span>➕</span> List an Item
+                  </Link>
+                  <div className="nav-dropdown-divider" />
+                  <button
+                    id="nav-logout-btn"
+                    className="nav-dropdown-item nav-dropdown-logout"
+                    onClick={handleLogout}
+                    role="menuitem"
+                  >
+                    <span>🚪</span> Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to="/login" id="nav-login-link" className="nav-btn-ghost">
+                Log in
+              </Link>
+              <Link to="/register" id="nav-register-link" className="nav-btn-primary">
+                Sign up →
+              </Link>
+            </>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 };
 

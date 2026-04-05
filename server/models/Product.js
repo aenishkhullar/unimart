@@ -37,6 +37,10 @@ const productSchema = new mongoose.Schema(
       required: true,
       ref: 'User',
     },
+    image: {
+      type: String,
+      default: "https://via.placeholder.com/300"
+    }
   },
   {
     timestamps: true,

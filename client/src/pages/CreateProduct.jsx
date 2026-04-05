@@ -15,6 +15,7 @@ const CreateProduct = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [image, setImage] = useState('');
     
     const navigate = useNavigate();
 
@@ -43,7 +44,7 @@ const CreateProduct = () => {
                 }
             };
 
-            const payload = { ...formData };
+            const payload = { ...formData, image };
             if (payload.type === 'sell') {
                 delete payload.rentDuration;
                 delete payload.deposit;
@@ -120,6 +121,18 @@ const CreateProduct = () => {
                             style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px' }}
                         />
                     </div>
+                </div>
+
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', color: '#555', fontWeight: 'bold' }}>Product Image URL:</label>
+                    <input 
+                        type="text" 
+                        name="image" 
+                        value={image} 
+                        onChange={(e) => setImage(e.target.value)} 
+                        placeholder="Paste image URL (optional)"
+                        style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px' }}
+                    />
                 </div>
 
                 <div>
