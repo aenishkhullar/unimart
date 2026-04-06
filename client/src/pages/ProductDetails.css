@@ -1,0 +1,260 @@
+/* ============================================================
+   UniMart — Product Details Styling
+   Modern 2-Column Layout System
+   ============================================================ */
+
+.product-details-page {
+  background-color: var(--surface);
+  min-height: 100vh;
+  padding: 100px 2rem 80px;
+}
+
+.product-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.product-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 60px;
+  align-items: start;
+  margin-bottom: 80px;
+}
+
+@media (min-width: 768px) {
+  .product-details-grid {
+    grid-template-columns: 55% 40%;
+    gap: 5%;
+  }
+}
+
+/* ——— Left: Image Column ——— */
+.product-image-frame {
+  background: var(--surface-low);
+  border-radius: 24px;
+  padding: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  box-shadow: var(--shadow-ambient);
+}
+
+.product-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply; /* Helps blend whitespace-heavy product shots into tonal bg */
+}
+
+/* ——— Right: Info Column ——— */
+.product-info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.badge-category {
+  background: var(--surface-white);
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
+}
+
+.badge-type {
+  background: var(--primary);
+  color: #fff;
+}
+
+.product-details-title {
+  font-family: var(--font-headline);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: var(--primary);
+  margin-top: 0.5rem;
+}
+
+.price-display {
+  padding: 1.5rem 0;
+}
+
+.price-value {
+  font-family: var(--font-headline);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.seller-card-mini {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 1.25rem;
+  background: var(--surface-white);
+  border-radius: 16px;
+  border: 1px solid var(--outline-variant);
+}
+
+.seller-avatar-initials {
+  width: 48px;
+  height: 48px;
+  background: var(--surface-low);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.seller-details h4 {
+  font-size: 0.85rem;
+  color: var(--on-surface-variant);
+  margin-bottom: 4px;
+}
+
+.seller-details p {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ——— Action Section ——— */
+.action-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary-action {
+  width: 100%;
+  padding: 1.25rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size : 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-secondary-action {
+  width: 100%;
+  padding: 1.125rem;
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius : var(--radius-pill);
+  font-weight: 800;
+  font-size : 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-owner-delete {
+  background: transparent;
+  color: var(--error);
+  border: 2px solid var(--error);
+}
+
+.rent-input-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: var(--surface-low);
+  padding: 1.25rem;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+}
+
+.rent-input-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  margin-bottom: 6px;
+}
+
+.rent-input-field input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-weight: 600;
+  outline: none;
+}
+
+/* ——— Description Section ——— */
+.details-extended {
+  border-top: 1px solid var(--outline-variant);
+  padding-top: 60px;
+}
+
+.section-label {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  color: var(--primary);
+}
+
+.product-desc-text {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--on-surface-variant);
+  white-space: pre-line;
+  max-width: 800px;
+}
+
+/* ——— Seller Order Management ——— */
+.pending-orders-section {
+  margin-top: 80px;
+  padding-top: 60px;
+  border-top: 2px dashed var(--outline-variant);
+}
+
+.order-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.order-card-compact {
+  background: var(--surface-white);
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--outline-variant);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ——— Fallbacks & Feedback ——— */
+.error-vibe {
+  text-align: center;
+  padding : 100px 2rem;
+}
+
+.posted-date {
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  margin-top: 2rem;
+}

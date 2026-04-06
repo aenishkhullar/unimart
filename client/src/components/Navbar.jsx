@@ -59,7 +59,7 @@ const Navbar = () => {
         {/* ─── Centre links ─── */}
         <div className="nav-links">
           <Link to="/" id="nav-home-link" className="nav-link">Home</Link>
-          <a href="/products" id="nav-browse-link" className="nav-link">Browse</a>
+          <Link to="/browse" id="nav-browse-link" className="nav-link">Browse</Link>
           {token && (
             <Link to="/create-product" id="nav-list-link" className="nav-link">
               List Item
