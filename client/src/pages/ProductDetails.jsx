@@ -211,7 +211,7 @@ const ProductDetails = () => {
                             {product.type === 'rent' && <span className="price-suffix"> / cycle</span>}
                         </div>
 
-                        <div className="seller-card-mini">
+                        <div className="seller-card-mini" onClick={() => navigate(`/seller/${seller._id}`)} style={{ cursor: 'pointer' }}>
                             <div className="seller-avatar-initials">
                                 {(seller.name || 'U').charAt(0).toUpperCase()}
                             </div>

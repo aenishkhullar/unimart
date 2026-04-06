@@ -9,6 +9,7 @@ import ProductDetails from "./pages/ProductDetails";
 import EditProduct from "./pages/EditProduct";
 import MyOrders from "./pages/MyOrders";
 import SellerDashboard from "./pages/SellerDashboard";
+import SellerProfile from "./pages/SellerProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
@@ -54,6 +55,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/seller/:id" element={<SellerProfile />} />
       </Routes>
     </>
   );

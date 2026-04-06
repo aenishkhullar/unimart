@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Product from '../models/Product.js';
+import Review from '../models/Review.js';
+
 
 // @desc    Register a new user
 // @route   POST /api/users/register
@@ -165,3 +168,56 @@ export const getUserProfile = async (req, res) => {
     });
   }
 };
+
+// @desc    Get seller profile
+// @route   GET /api/users/:id/profile
+// @access  Public
+export const getSellerProfile = async (req, res) => {
+  try {
+    const sellerId = req.params.id;
+
+    // Fetch seller: name, email, createdAt
+    const seller = await User.findById(sellerId).select('name email createdAt');
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: 'Seller not found',
+      });
+    }
+
+    // Fetch all products by seller
+    const products = await Product.find({ user: sellerId });
+
+    // Fetch all reviews for this seller
+    const reviews = await Review.find({ seller: sellerId })
+      .populate('user', 'name')
+      .sort({ createdAt: -1 });
+
+    // Calculate aggregated data
+    const totalReviews = reviews.length;
+    const avgRating =
+      totalReviews > 0
+        ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+        : 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        seller,
+        products,
+        reviews,
+        avgRating,
+        totalReviews,
+      },
+    });
+  } catch (error) {
+    console.error('Error in getSellerProfile:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server Error: Could not fetch seller profile',
+      error: error.message,
+    });
+  }
+};
+

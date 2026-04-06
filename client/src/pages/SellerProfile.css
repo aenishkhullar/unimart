@@ -1,0 +1,320 @@
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@300;500;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
+
+.seller-profile-page {
+    --surface: #f9f9f9;
+    --surface-low: #f3f3f3;
+    --surface-highest: #e2e2e2;
+    --surface-lowest: #ffffff;
+    --primary: #000000;
+    --secondary: #835500;
+    --accent: #F5A623;
+    --on-surface-variant: #4c4546;
+    --radius-full: 9999px;
+    --radius-card: 16px;
+    
+    background-color: var(--surface);
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--primary);
+    padding-bottom: 5rem;
+}
+
+.section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   HEADER SECTION
+   ────────────────────────────────────────────────────────────────────────── */
+.seller-header {
+    background-color: var(--surface-lowest);
+    padding: 6rem 0 4rem;
+    margin-bottom: 4rem;
+    border-bottom: 1px solid var(--surface-highest);
+}
+
+.seller-header .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.seller-identity {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.seller-avatar {
+    width: 140px;
+    height: 140px;
+    background-color: var(--primary);
+    color: var(--surface-lowest);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Epilogue', sans-serif;
+    font-size: 4rem;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.seller-meta .seller-name {
+    font-family: 'Epilogue', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.member-since {
+    color: var(--on-surface-variant);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.seller-rating-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: var(--surface-low);
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.rating-count {
+    color: var(--on-surface-variant);
+    font-weight: 400;
+}
+
+.seller-stats {
+    display: flex;
+    gap: 3rem;
+}
+
+.stat-item {
+    text-align: right;
+}
+
+.stat-value {
+    display: block;
+    font-family: 'Epilogue', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+}
+
+.stat-label {
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ABOUT SECTION
+   ────────────────────────────────────────────────────────────────────────── */
+.seller-about {
+    margin-bottom: 6rem;
+}
+
+.section-title {
+    font-family: 'Epilogue', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 40px;
+    height: 4px;
+    background-color: var(--accent);
+}
+
+.about-text {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: var(--on-surface-variant);
+    max-width: 800px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   PRODUCTS SECTION
+   ────────────────────────────────────────────────────────────────────────── */
+.seller-products {
+    margin-bottom: 6rem;
+}
+
+.seller-products .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.listing-count {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.product-grid-editorial {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+}
+
+/* reuse product cards from other sheets but adjust container */
+.product-listing-card {
+    border-radius: var(--radius-card) !important;
+    border: none !important;
+    background: var(--surface-lowest) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.product-listing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   REVIEWS SECTION
+   ────────────────────────────────────────────────────────────────────────── */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.review-card-editorial {
+    background-color: var(--surface-lowest);
+    border-radius: var(--radius-card);
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
+
+.review-card-editorial .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.reviewer-name {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.review-date {
+    font-size: 0.9rem;
+    color: var(--on-surface-variant);
+}
+
+.review-rating {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+.review-comment {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--on-surface-variant);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   STATES
+   ────────────────────────────────────────────────────────────────────────── */
+.loading-state, .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 2rem;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--surface-lowest);
+    border-top: 5px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.btn-editorial {
+    display: inline-block;
+    background-color: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-weight: 700;
+    transition: opacity 0.2s;
+}
+
+.btn-editorial:hover {
+    opacity: 0.9;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   RESPONSIVE
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 992px) {
+    .seller-header .header-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 3rem;
+    }
+    
+    .seller-identity {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .seller-meta .seller-name {
+        font-size: 2.8rem;
+    }
+    
+    .seller-stats {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .seller-meta .seller-name {
+        font-size: 2.2rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+}
