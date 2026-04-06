@@ -144,35 +144,8 @@ const ProductDetails = () => {
     };
 
     const submitReview = async () => {
-        if (!rating || !comment) {
-            alert("Please provide both a rating and a comment.");
-            return;
-        }
-
-        try {
-            setReviewLoading(true);
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user'));
-            
-            await axios.post(
-                `http://localhost:5000/api/reviews/${id}`,
-                { rating, comment },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            setRating(0);
-            setComment("");
-            alert("Review submitted successfully!");
-            fetchReviews(); // Refresh list immediately
-        } catch (err) {
-            alert(err.response?.data?.message || "Error submitting review");
-        } finally {
-            setReviewLoading(false);
-        }
+        // Removed as per transaction-based review requirement
+        alert("Reviews can only be added from the My Orders page after a completed purchase.");
     };
 
     if (loading) {
@@ -224,7 +197,7 @@ const ProductDetails = () => {
                             <span className="badge badge-type">{product.type.toUpperCase()}</span>
                             <span className="trust-rating">
                                 {reviewCount > 0 ? (
-                                    <>⭐ {avgRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</>
+                                    <>⭐ {(avgRating || 0).toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</>
                                 ) : (
                                     <>⭐ No reviews yet</>
                                 )}
@@ -318,59 +291,29 @@ const ProductDetails = () => {
                 <div className="reviews-master-container">
                     <div className="reviews-header">
                         <h3 className="section-label">Community Feedback</h3>
-                        {reviewCount > 0 && <span className="overall-score">⭐ {avgRating.toFixed(1)} Average</span>}
+                        {reviewCount > 0 && <span className="overall-score">⭐ {(avgRating || 0).toFixed(1)} Average</span>}
                     </div>
 
                     <div className="reviews-layout">
-                        {/* Review Form - Only for logged in non-owners */}
-                        {!isOwner && currentUser ? (
-                            <div className="review-form-panel">
-                                <h3>Write a Review</h3>
-                                <p>Share your experience with this item.</p>
-                                
-                                <div className="star-rating-input">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                            key={star}
-                                            type="button"
-                                            className={`star-btn ${star <= (hover || rating) ? 'active' : ''}`}
-                                            onClick={() => setRating(star)}
-                                            onMouseEnter={() => setHover(star)}
-                                            onMouseLeave={() => setHover(0)}
-                                        >
-                                            ★
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <textarea
-                                    className="review-textarea"
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="What did you think of this product? Mention quality, condition, or delivery..."
-                                    rows="4"
-                                />
-
-                                <button 
-                                    className="btn-primary-action" 
-                                    onClick={submitReview} 
-                                    disabled={reviewLoading}
-                                >
-                                    {reviewLoading ? "Submitting..." : "Post Review"}
-                                </button>
-                            </div>
-                        ) : !currentUser ? (
-                            <div className="review-auth-prompt">
-                                <p>Please <Link to="/login">login</Link> to leave a review.</p>
-                            </div>
-                        ) : null}
+                        {/* Notice: Reviews are only allowed after purchase */}
+                        <div className="review-notice-panel">
+                            <div className="notice-icon">🛍️</div>
+                            <h3>Share Your Experience</h3>
+                            <p>To ensure authentic feedback, reviews can only be submitted by verified buyers after the order is completed.</p>
+                            {!currentUser && <p className="login-link">Please <Link to="/login">login</Link> to view your purchase history.</p>}
+                            {currentUser && !isOwner && (
+                                <Link to="/my-orders" className="btn-secondary-action" style={{ textAlign: 'center', display: 'block', marginTop: '1rem' }}>
+                                    View My Purchases
+                                </Link>
+                            )}
+                        </div>
 
                         {/* Reviews List */}
                         <div className="reviews-list-container">
                             {reviews.length === 0 ? (
                                 <div className="empty-reviews-state">
                                     <div className="empty-icon">💬</div>
-                                    <p>No reviews yet. Be the first to share your thoughts!</p>
+                                    <p>No reviews yet. Be the first to review after purchase!</p>
                                 </div>
                             ) : (
                                 reviews.map((rev) => (

@@ -1,5 +1,6 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 
 /**
  * @desc    Add review to product
@@ -21,6 +22,20 @@ export const addReview = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "You cannot review your own product",
+      });
+    }
+
+    // ORDER VALIDATION: User must have a 'completed' order for this product
+    const order = await Order.findOne({
+      user: req.user._id,
+      product: req.params.productId,
+      status: 'completed'
+    });
+
+    if (!order) {
+      return res.status(400).json({
+        success: false,
+        message: "You can review only after purchasing this product"
       });
     }
 

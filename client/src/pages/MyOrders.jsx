@@ -7,6 +7,11 @@ const MyOrders = () => {
   const [orders, setOrders]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
+  const [activeReviewId, setActiveReviewId] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,6 +46,50 @@ const MyOrders = () => {
 
     fetchOrders();
   }, [navigate]);
+
+  const fetchOrders = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await axios.get('http://localhost:5000/api/orders/my', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const ordersData = Array.isArray(res.data?.orders) ? res.data.orders : [];
+      const sortedOrders = [...ordersData].sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setOrders(sortedOrders);
+    } catch (err) {
+      console.error('Refresh Orders Error:', err);
+    }
+  };
+
+  const handleReviewSubmit = async (productId, orderId) => {
+    if (!rating || !comment) {
+      alert("Please provide both a rating and a comment.");
+      return;
+    }
+
+    setReviewLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`http://localhost:5000/api/reviews/${productId}`, {
+        rating,
+        comment
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert("Review submitted successfully!");
+      setActiveReviewId(null);
+      setRating(0);
+      setComment("");
+      fetchOrders(); // Refresh to update isReviewed status
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to submit review.");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -79,7 +128,8 @@ const MyOrders = () => {
         ) : (
           <div className="orders-list">
             {orders.map((order) => (
-              <div key={order?._id} className="order-card">
+              <React.Fragment key={order?._id}>
+                <div className="order-card">
                 <div className="order-img-wrapper">
                     <img 
                       src={order?.product?.image || "https://via.placeholder.com/300"} 
@@ -125,11 +175,62 @@ const MyOrders = () => {
                   <span className={`status-badge status-${order?.status || 'pending'}`}>
                     {order?.status || 'pending'}
                   </span>
+                  
+                  {order?.status === 'completed' && !order?.isReviewed && (
+                    <button 
+                      className="btn-review-trigger"
+                      onClick={() => setActiveReviewId(activeReviewId === order._id ? null : order._id)}
+                    >
+                      {activeReviewId === order._id ? 'Cancel' : 'Write Review'}
+                    </button>
+                  )}
+
+                  {order?.isReviewed && (
+                    <span className="reviewed-badge">⭐ Rated</span>
+                  )}
+
                   <div className="order-timestamp" style={{ fontSize: '0.7rem', color: 'var(--on-surface-variant)', marginTop: 'auto' }}>
                     Ordered {order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                   </div>
                 </div>
               </div>
+
+              {/* Inline Review Form */}
+              {activeReviewId === order._id && (
+                <div className="inline-review-form">
+                  <div className="review-form-header">
+                    <h4>Review your purchase</h4>
+                    <div className="star-rating-input">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          className={`star-btn ${star <= (hover || rating) ? 'active' : ''}`}
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHover(star)}
+                          onMouseLeave={() => setHover(0)}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <textarea 
+                    className="review-textarea"
+                    placeholder="How was the product? Share your thoughts..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                  />
+                  <button 
+                    className="btn-submit-review"
+                    onClick={() => handleReviewSubmit(order.product._id, order._id)}
+                    disabled={reviewLoading}
+                  >
+                    {reviewLoading ? 'Posting...' : 'Submit Feedback'}
+                  </button>
+                </div>
+              )}
+            </React.Fragment>
             ))}
           </div>
         )}

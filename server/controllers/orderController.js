@@ -1,5 +1,6 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
+import Review from '../models/Review.js';
 
 // Reusable population configuration for Orders
 const orderPopulate = [
@@ -157,10 +158,24 @@ export const getMyOrders = async (req, res) => {
 
     const safeOrders = mapSafeOrders(orders);
 
+    // Optimized review check: fetch all reviews for these products by this user
+    const productIds = safeOrders.map(o => o.product?._id).filter(Boolean);
+    const reviews = await Review.find({
+      user: req.user._id,
+      product: { $in: productIds }
+    });
+
+    const reviewedSet = new Set(reviews.map(r => r.product.toString()));
+
+    const ordersWithReviewFlag = safeOrders.map(order => ({
+      ...order,
+      isReviewed: order.product?._id ? reviewedSet.has(order.product._id.toString()) : false
+    }));
+
     return res.status(200).json({
       success: true,
-      count: safeOrders.length,
-      orders: safeOrders,
+      count: ordersWithReviewFlag.length,
+      orders: ordersWithReviewFlag,
     });
   } catch (error) {
     console.error('Error in getMyOrders:', error.message);
