@@ -48,7 +48,7 @@ const SellerProfile = () => {
     return (
         <div className="seller-profile-page">
             <header className="seller-header">
-                <div className="header-container">
+                <div className="container">
                     <div className="seller-identity">
                         <div className="seller-avatar">
                             {(seller.name || 'U').charAt(0).toUpperCase()}
@@ -81,7 +81,7 @@ const SellerProfile = () => {
             </header>
 
             <section className="seller-about">
-                <div className="section-container">
+                <div className="container">
                     <h2 className="section-title">About the Seller</h2>
                     <p className="about-text">
                         Campus seller providing quality items. Specializes in textbooks, electronics, and dorm essentials. 
@@ -91,7 +91,7 @@ const SellerProfile = () => {
             </section>
 
             <section className="seller-products">
-                <div className="section-container">
+                <div className="container">
                     <div className="section-header">
                         <h2 className="section-title">Products by this Seller</h2>
                         <span className="listing-count">{products.length} Items</span>
@@ -99,7 +99,7 @@ const SellerProfile = () => {
                     {products.length === 0 ? (
                         <p className="empty-msg">No active listings currently.</p>
                     ) : (
-                        <div className="product-grid-editorial">
+                        <div className="product-grid">
                             {products.map(product => (
                                 <ProductCard key={product._id} product={product} />
                             ))}
@@ -109,7 +109,7 @@ const SellerProfile = () => {
             </section>
 
             <section className="seller-reviews">
-                <div className="section-container">
+                <div className="container">
                     <h2 className="section-title">What Buyers Say</h2>
                     {reviews.length === 0 ? (
                         <div className="empty-reviews">

@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useWishlist } from '../context/WishlistContext';
 import './ProductDetails.css';
 
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { toggleWishlist, isInWishlist } = useWishlist();
+    const [isAnimating, setIsAnimating] = useState(false);
+    
     const [product, setProduct] = useState(null);
+    // ... other states ...
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [orderStatus, setOrderStatus] = useState(null); // null | 'loading' | 'success' | 'error'
@@ -204,7 +209,28 @@ const ProductDetails = () => {
                             </span>
                         </div>
 
-                        <h1 className="product-details-title">{product.title}</h1>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <h1 className="product-details-title">{product.title}</h1>
+                            <button
+                                className={`bookmark-btn-large ${isInWishlist(product._id) ? 'saved' : ''} ${isAnimating ? 'animating' : ''}`}
+                                onClick={async () => {
+                                    setIsAnimating(true);
+                                    await toggleWishlist(product._id);
+                                    setTimeout(() => setIsAnimating(false), 300);
+                                }}
+                                aria-label={isInWishlist(product._id) ? "Remove from saved" : "Save item"}
+                            >
+                                {isInWishlist(product._id) ? (
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                                        <path d="M5 5v14l7-4 7 4V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
+                                    </svg>
+                                ) : (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+                                        <path d="M5 5v14l7-4 7 4V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                         
                         <div className="price-display">
                             <span className="price-value">{formattedPrice}</span>

@@ -160,7 +160,7 @@ const Browse = () => {
       />
 
       {/* ━━━━━━━━━━━━━━━━ Main Content ━━━━━━━━━━━━━━━━ */}
-      <main className="browse-content">
+      <main className="container">
         {loading ? (
           <div className="loading-state">
             <div className="loading-spinner"></div>

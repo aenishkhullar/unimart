@@ -230,3 +230,65 @@ export const getSellerProfile = async (req, res) => {
   }
 };
 
+// @desc    Toggle wishlist item
+// @route   POST /api/users/wishlist/:productId
+// @access  Private
+export const toggleWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isWishlisted = user.wishlist.includes(productId);
+
+    if (isWishlisted) {
+      user.wishlist = user.wishlist.filter((id) => id.toString() !== productId);
+    } else {
+      user.wishlist.push(productId);
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      data: user.wishlist,
+      message: isWishlisted ? 'Removed from saved items' : 'Added to saved items',
+    });
+  } catch (error) {
+    console.error('Error in toggleWishlist:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server Error: Could not update wishlist',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get user wishlist
+// @route   GET /api/users/wishlist
+// @access  Private
+export const getWishlist = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('wishlist');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user.wishlist,
+    });
+  } catch (error) {
+    console.error('Error in getWishlist:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server Error: Could not fetch wishlist',
+      error: error.message,
+    });
+  }
+};
+

@@ -106,6 +106,9 @@ const Navbar = () => {
                   <Link to="/my-orders" id="nav-my-orders-link" className="nav-dropdown-item" role="menuitem">
                     <span>🛍️</span> My Orders
                   </Link>
+                  <Link to="/wishlist" id="nav-wishlist-link" className="nav-dropdown-item" role="menuitem">
+                    <span>🔖</span> Saved Items
+                  </Link>
                   <Link to="/seller-dashboard" id="nav-seller-dashboard-link" className="nav-dropdown-item" role="menuitem">
                     <span>📈</span> Seller Dashboard
                   </Link>

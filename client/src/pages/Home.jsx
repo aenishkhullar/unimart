@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
 import './Home.css';
+// ... existing code ...
 
 /* ─── Category config (updated list) ─── */
 const CATEGORIES = [
@@ -224,35 +226,8 @@ const Home = () => {
 
             <div className="trending-scroll">
               {trendingProducts.map((product) => (
-                <div
-                  key={`trending-${product._id || product.id}`}
-                  id={`trending-card-${product._id || product.id}`}
-                  className="trending-card"
-                  onClick={() => navigate(`/product/${product._id || product.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/product/${product._id || product.id}`)}
-                >
-                  <div className="trending-card-image">
-                    <span className={`card-img-badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
-                      {product.type === 'rent' ? 'Rent' : 'Sale'}
-                    </span>
-                    <img 
-                      src={product?.image || "https://via.placeholder.com/300"} 
-                      alt="product" 
-                      className="product-card-image" 
-                    />
-                  </div>
-                  <div className="trending-card-body">
-                    <div className="trending-card-category">{product.category || 'Other'}</div>
-                    <h3 className="trending-card-title">{product.title}</h3>
-                    <div className="trending-card-footer">
-                      <div className="card-price-label">${product.price}</div>
-                      <span className={`card-type-badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
-                        {product.type === 'rent' ? 'Rent' : 'Buy'}
-                      </span>
-                    </div>
-                  </div>
+                <div key={`trending-${product._id || product.id}`} style={{ flex: '0 0 auto', width: '280px' }}>
+                    <ProductCard product={product} />
                 </div>
               ))}
             </div>
