@@ -21,10 +21,17 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
   rentDuration: {
-    type: String,
+    type: Number,
+  },
+  rentTotal: {
+    type: Number,
   },
   deposit: {
     type: Number,
+  },
+  totalAmount: {
+    type: Number,
+    required: true,
   },
   rentStartDate: {
     type: Date,

@@ -5,6 +5,7 @@ import './Dashboard.css';
 
 const SellerDashboard = () => {
   const [orders, setOrders]   = useState([]);
+  const [totalEarnings, setTotalEarnings] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const SellerDashboard = () => {
         );
         
         setOrders(sortedOrders);
+        setTotalEarnings(res.data.totalEarnings || 0);
       } catch (err) {
         console.error('Fetch Seller Orders Error:', err);
         setError(err.response?.data?.message || 'Unable to load seller analytics. Check your connection.');
@@ -124,6 +126,10 @@ const SellerDashboard = () => {
             <span className="stat-label">Successfully Sold</span>
             <span className="stat-value">{totalCompleted}</span>
           </div>
+          <div className="stat-card">
+            <span className="stat-label">Earnings</span>
+            <span className="stat-value">₹ {totalEarnings}</span>
+          </div>
         </section>
 
         {error && (
@@ -168,8 +174,8 @@ const SellerDashboard = () => {
                       <span className="info-value" style={{ fontSize: '0.75rem', fontWeight: 400 }}>{order?.user?.email}</span>
                     </div>
                     <div className="order-info-item">
-                      <span className="info-label">Earnings</span>
-                      <span className="info-value">${order?.price || 0}</span>
+                      <span className="info-label">Price</span>
+                      <span className="info-value">₹{order?.totalAmount || order?.price || 0}</span>
                     </div>
                     {order?.type === 'rent' && (order?.rentStartDate || order?.rentEndDate) && (
                       <div className="order-info-item">

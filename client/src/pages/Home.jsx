@@ -13,6 +13,7 @@ const CATEGORIES = [
   { name: 'Stationery',       value: 'Stationery',         icon: '✏️', color: '#F3E5F5' },
   { name: 'Clothing',         value: 'Clothing',           icon: '👕', color: '#FCE4EC' },
   { name: 'Lifestyle',        value: 'Lifestyle',          icon: '🎯', color: '#E0F7FA' },
+  { name: 'Transport',        value: 'Transport',          icon: '🚲', color: '#FFF9C4' },
   { name: 'Others',           value: 'Others',             icon: '📦', color: '#F5F5F5' },
 ];
 
@@ -23,6 +24,7 @@ const CATEGORY_ICON_MAP = {
   'Stationery':       '✏️',
   'Clothing':         '👕',
   'Lifestyle':        '🎯',
+  'Transport':        '🚲',
   'Others':           '📦',
 };
 
@@ -163,10 +165,10 @@ const Home = () => {
             <div className="hero-badge-top">🔥 Trending this week</div>
             <div className="hero-visual-card">
               {[
-                { icon: '📚', label: 'Calculus Vol.2',    price: '$12' },
-                { icon: '💻', label: 'MacBook Air M1',    price: '$749' },
-                { icon: '🎧', label: 'Sony WH-1000XM4',  price: '$180' },
-                { icon: '🛏️', label: 'Retro Mini Fridge', price: '$35/mo' },
+                { icon: '📚', label: 'Calculus Vol.2',    price: '₹950' },
+                { icon: '💻', label: 'MacBook Air M1',    price: '₹60000' },
+                { icon: '🎧', label: 'Sony WH-1000XM4',  price: '₹14000' },
+                { icon: '🛏️', label: 'Retro Mini Fridge', price: '₹500/day' },
               ].map((item) => (
                 <div key={item.label} className="hero-mini-product">
                   <div className="hero-mini-icon">{item.icon}</div>
@@ -260,11 +262,38 @@ const Home = () => {
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ TESTIMONIAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <div className="testimonial-section">
         <div className="testimonial-inner">
-          <p className="testimonial-quote">
-            UniMart saved me $400 on my Engineering textbooks this semester.
-            It's a game changer for every student on campus.
-          </p>
-          <div className="testimonial-author">— SARAH K., YEAR 3</div>
+          <div className="section-eyebrow" style={{ textAlign: 'center', marginBottom: '2rem' }}>Student Stories</div>
+          <div className="testimonials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div className="testimonial-card" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+              <p className="testimonial-quote" style={{ fontSize: '1rem', fontStyle: 'italic', marginBottom: '1.5rem', color: '#444' }}>
+                "Saved me hundreds on textbooks! UniMart is a game changer for every student on campus."
+              </p>
+              <div className="testimonial-author" style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#111' }}>
+                <span style={{ fontSize: '1.5rem', verticalAlign: 'middle', marginRight: '8px' }}>👩🏽‍🎓</span>
+                SARAH K., YEAR 3
+              </div>
+            </div>
+            
+            <div className="testimonial-card" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+              <p className="testimonial-quote" style={{ fontSize: '1rem', fontStyle: 'italic', marginBottom: '1.5rem', color: '#444' }}>
+                "Super smooth campus transactions. Better than the messy WhatsApp groups!"
+              </p>
+              <div className="testimonial-author" style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#111' }}>
+                <span style={{ fontSize: '1.5rem', verticalAlign: 'middle', marginRight: '8px' }}>👨🏻‍🎓</span>
+                JAMES L., YEAR 1
+              </div>
+            </div>
+
+            <div className="testimonial-card" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+              <p className="testimonial-quote" style={{ fontSize: '1rem', fontStyle: 'italic', marginBottom: '1.5rem', color: '#444' }}>
+                "Rented a bike for a week. Trusted sellers and easy pickup. Best marketplace for students."
+              </p>
+              <div className="testimonial-author" style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#111' }}>
+                <span style={{ fontSize: '1.5rem', verticalAlign: 'middle', marginRight: '8px' }}>👳🏽‍♂️</span>
+                ARJUN P., YEAR 2
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

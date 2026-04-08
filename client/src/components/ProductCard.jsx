@@ -62,7 +62,9 @@ const ProductCard = ({ product }) => {
         <div className="product-listing-category">{product.category || 'Other'}</div>
         <h3 className="product-listing-title">{product.title}</h3>
         <div className="product-listing-footer">
-          <div className="product-listing-price">${product.price}</div>
+          <div className="product-listing-price">
+              ₹{product.type === 'rent' ? product.rentPrice || product.price : product.price}
+          </div>
           <button 
             className="btn-listing-details"
             onClick={handleDetailsClick}

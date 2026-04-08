@@ -10,6 +10,7 @@ const CATEGORIES = [
   "Stationery",
   "Clothing",
   "Lifestyle",
+  "Transport",
   "Others"
 ];
 
@@ -28,7 +29,6 @@ const CreateProduct = () => {
     const [category, setCategory] = useState("");
     const [type, setType] = useState("Sell");
     const [image, setImage] = useState("");
-    const [rentDuration, setRentDuration] = useState("");
     const [deposit, setDeposit] = useState("");
 
     const [error, setError] = useState('');
@@ -42,7 +42,7 @@ const CreateProduct = () => {
 
         // 1. Validation
         if (!title.trim() || !price || !category) {
-            setError("Please fill all required fields (Title, Price, Category)");
+            setError(`Please fill all required fields (Title, ${type === 'Sell' ? 'Selling Price' : 'Rent Price'}, Category)`);
             return;
         }
 
@@ -70,15 +70,16 @@ const CreateProduct = () => {
             const payload = {
                 title,
                 description,
-                price: priceNumber,
                 category,
                 type: finalType,
                 image: image || undefined
             };
 
             if (finalType === 'rent') {
-                payload.rentDuration = rentDuration;
+                payload.rentPrice = priceNumber;
                 payload.deposit = Number(deposit);
+            } else {
+                payload.price = priceNumber;
             }
 
             // 3. API Call
@@ -94,7 +95,6 @@ const CreateProduct = () => {
                 setCategory("");
                 setImage("");
                 setType("Sell");
-                setRentDuration("");
                 setDeposit("");
 
                 // 5. Success Feedback & Redirect
@@ -146,7 +146,7 @@ const CreateProduct = () => {
                     {/* Price & Category Row */}
                     <div className="form-row">
                         <div className="form-group">
-                            <label className="form-label">Price ($) *</label>
+                            <label className="form-label">{type === 'Sell' ? 'Selling Price (₹)' : 'Rent Price (₹ per day)'} *</label>
                             <input 
                                 type="number" 
                                 className="form-input"
@@ -200,17 +200,7 @@ const CreateProduct = () => {
                         <div className="rent-details-box fade-in">
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label className="form-label">Rent Duration</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-input"
-                                        placeholder="e.g., 2 weeks"
-                                        value={rentDuration}
-                                        onChange={(e) => setRentDuration(e.target.value)}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Deposit ($)</label>
+                                    <label className="form-label">Deposit (₹)</label>
                                     <input 
                                         type="number" 
                                         className="form-input"

@@ -6,13 +6,20 @@ import Review from '../models/Review.js';
 // @access  Private
 export const createProduct = async (req, res) => {
   try {
-    const { title, description, price, category, type, rentDuration, deposit, image } = req.body;
+    const { title, description, price, category, type, rentPrice, rentDuration, deposit, image } = req.body;
 
     // Validate common required fields
-    if (!title || !description || !price || !category || !type) {
+    if (!title || !description || !category || !type) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields (title, description, price, category, type)',
+        message: 'Please provide all required fields (title, description, category, type)',
+      });
+    }
+
+    if (type === 'sell' && !price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a selling price',
       });
     }
 
@@ -26,6 +33,12 @@ export const createProduct = async (req, res) => {
 
     // Rent-specific validation
     if (type === 'rent') {
+      if (!rentPrice) {
+        return res.status(400).json({
+          success: false,
+          message: 'rentPrice is required for rental listings',
+        });
+      }
       if (!rentDuration) {
         return res.status(400).json({
           success: false,
@@ -52,8 +65,12 @@ export const createProduct = async (req, res) => {
 
     // Attach rent-specific fields only when type is 'rent'
     if (type === 'rent') {
+      productData.rentPrice = Number(rentPrice);
       productData.rentDuration = rentDuration;
       productData.deposit = Number(deposit);
+      productData.price = Number(rentPrice); // Maintain legacy price field for list views
+    } else {
+      productData.price = Number(price);
     }
 
     const product = new Product(productData);

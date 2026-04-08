@@ -20,6 +20,7 @@ const ProductDetails = () => {
     const [endDate, setEndDate] = useState('');
     const [productOrders, setProductOrders] = useState([]);
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
+    const [rentDays, setRentDays] = useState(0);
     const [contactingSeller, setContactingSeller] = useState(false);
     
     // Review States
@@ -80,6 +81,22 @@ const ProductDetails = () => {
     useEffect(() => {
         fetchReviews();
     }, [id]);
+
+    useEffect(() => {
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            if (start < end) {
+                const diffTime = Math.abs(end - start);
+                const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                setRentDays(days);
+            } else {
+                setRentDays(0);
+            }
+        } else {
+            setRentDays(0);
+        }
+    }, [startDate, endDate]);
 
     const handleDelete = async () => {
         if (window.confirm("Are you sure you want to delete this product?")) {
@@ -218,6 +235,11 @@ const ProductDetails = () => {
 
                     {/* Right: Info */}
                     <div className="product-info-panel">
+                        {product.category === 'Transport' && (
+                            <div style={{background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <span>⚠️</span> Valid driving license required to purchase/rent this item.
+                            </div>
+                        )}
                         <div className="info-header-meta">
                             <span className="badge badge-category">{product.category}</span>
                             <span className="badge badge-type">{product.type.toUpperCase()}</span>
@@ -254,8 +276,10 @@ const ProductDetails = () => {
                         </div>
                         
                         <div className="price-display">
-                            <span className="price-value">{formattedPrice}</span>
-                            {product.type === 'rent' && <span className="price-suffix"> / cycle</span>}
+                            <span className="price-value">
+                                {product.type === 'rent' ? `₹ ${product.rentPrice}` : formattedPrice}
+                            </span>
+                            {product.type === 'rent' && <span className="price-suffix"> / day</span>}
                         </div>
 
                         <div className="seller-card-mini" onClick={() => navigate(`/seller/${seller._id}`)} style={{ cursor: 'pointer' }}>
@@ -286,22 +310,50 @@ const ProductDetails = () => {
                             ) : (
                                 <>
                                     {product.type === 'rent' && (
-                                        <div className="rent-input-group">
-                                            <div className="rent-input-field">
-                                                <label>START DATE</label>
-                                                <input type="date" min={today} value={startDate} onChange={(e)=>setStartDate(e.target.value)} />
+                                        <>
+                                            <div style={{background: '#e2e3e5', color: '#383d41', padding: '8px 12px', borderRadius: '5px', marginBottom: '15px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                                <span>ℹ️</span> Security deposit is refundable after successful return.
                                             </div>
-                                            <div className="rent-input-field">
-                                                <label>END DATE</label>
-                                                <input type="date" min={startDate || today} value={endDate} onChange={(e)=>setEndDate(e.target.value)} />
+                                            <div className="rent-input-group">
+                                                <div className="rent-input-field">
+                                                    <label>START DATE</label>
+                                                    <input type="date" min={today} value={startDate} onChange={(e)=>setStartDate(e.target.value)} />
+                                                </div>
+                                                <div className="rent-input-field">
+                                                    <label>END DATE</label>
+                                                    <input type="date" min={startDate || today} value={endDate} onChange={(e)=>setEndDate(e.target.value)} />
+                                                </div>
                                             </div>
-                                        </div>
+
+                                            {rentDays > 0 && (
+                                                <div className="pricing-breakdown">
+                                                    <div className="breakdown-row">
+                                                        <span>Rent ({rentDays} days)</span>
+                                                        <span>₹ {product.rentPrice * rentDays}</span>
+                                                    </div>
+                                                    <div className="breakdown-row">
+                                                        <span>Security Deposit</span>
+                                                        <span>₹ {product.deposit}</span>
+                                                    </div>
+                                                    <div className="breakdown-row total">
+                                                        <span>Total Amount</span>
+                                                        <span>₹ { (product.rentPrice * rentDays) + (product.deposit || 0) }</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            {rentDays === 0 && (
+                                                <div style={{background: '#fff3cd', color: '#856404', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '0.9rem'}}>
+                                                    Please select rental duration before proceeding.
+                                                </div>
+                                            )}
+                                        </>
                                     )}
 
                                     <button 
                                         className="btn-primary-action"
                                         onClick={handleOrder}
-                                        disabled={orderStatus === 'loading' || orderStatus === 'success'}
+                                        disabled={orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0)}
                                     >
                                         {orderStatus === 'loading' 
                                             ? 'Requesting...' 

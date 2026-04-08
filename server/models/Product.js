@@ -24,10 +24,11 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Please select if this is for sell or rent'],
       enum: ['sell', 'rent'],
     },
-    rentDuration: {
-      type: String,
+    rentPrice: {
+      type: Number,
       default: null,
     },
+
     deposit: {
       type: Number,
       default: null,

@@ -206,9 +206,21 @@ const MyOrders = () => {
                   
                   <div className="order-info-row">
                     <div className="order-info-item">
-                      <span className="info-label">Price Paid</span>
-                      <span className="info-value">${order?.price || 0}</span>
+                      <span className="info-label">{order?.type === 'rent' ? 'Total Amount' : 'Price Paid'}</span>
+                      <span className="info-value">₹ {order?.totalAmount || order?.price || 0}</span>
                     </div>
+                    {order?.type === 'rent' && (
+                      <>
+                        <div className="order-info-item">
+                          <span className="info-label">Security Deposit</span>
+                          <span className="info-value">₹ {order?.deposit || 0}</span>
+                        </div>
+                        <div className="order-info-item">
+                          <span className="info-label">Duration</span>
+                          <span className="info-value">{order?.rentDuration} days</span>
+                        </div>
+                      </>
+                    )}
                     {order?.type === 'rent' && (order?.rentStartDate || order?.rentEndDate) && (
                       <>
                         <div className="order-info-item">

@@ -63,10 +63,10 @@ export const createOrder = async (req, res) => {
       user: req.user._id,
       product: product._id,
       type,
-      price: product.price,
+      price: product.type === 'sell' ? product.price : product.rentPrice,
     };
 
-    // Rent-specific logic: validation and overlap check
+    // Calculation logic based on product type
     if (type === 'rent') {
       if (!rentStartDate || !rentEndDate) {
         return res.status(400).json({
@@ -118,11 +118,23 @@ export const createOrder = async (req, res) => {
         });
       }
 
-      // Include rent fields
-      orderData.rentDuration = product.rentDuration;
-      orderData.deposit = product.deposit;
+      // Calculate rent duration in days
+      const diffTime = Math.abs(end - start);
+      const rentDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // Pricing logic for Rent
+      const rentTotal = (product.rentPrice || 0) * rentDays;
+      const deposit = product.deposit || 0;
+      
+      orderData.rentDuration = rentDays;
+      orderData.rentTotal = rentTotal;
+      orderData.deposit = deposit;
+      orderData.totalAmount = rentTotal + deposit;
       orderData.rentStartDate = start;
       orderData.rentEndDate = end;
+    } else {
+      // Pricing logic for Sell
+      orderData.totalAmount = product.price;
     }
 
     const order = await Order.create(orderData);
@@ -346,10 +358,22 @@ export const getSellerOrders = async (req, res) => {
 
     const safeOrders = mapSafeOrders(orders);
 
+    let totalEarnings = 0;
+    safeOrders.forEach(order => {
+        if (order.status === 'completed') {
+            if (order.type === 'buy' || order.type === 'sell') {
+                totalEarnings += order.price || 0;
+            } else if (order.type === 'rent') {
+                totalEarnings += order.rentTotal || 0;
+            }
+        }
+    });
+
     return res.status(200).json({
       success: true,
       count: safeOrders.length,
       orders: safeOrders,
+      totalEarnings,
     });
   } catch (error) {
     console.error('Error in getSellerOrders:', error.message);
