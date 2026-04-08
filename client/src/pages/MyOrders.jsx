@@ -12,6 +12,8 @@ const MyOrders = () => {
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editingOrderId, setEditingOrderId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,6 +90,61 @@ const MyOrders = () => {
       alert(err.response?.data?.message || "Failed to submit review.");
     } finally {
       setReviewLoading(false);
+    }
+  };
+
+  const handleEditClick = (order) => {
+    setEditingReviewId(order.review._id);
+    setEditingOrderId(order._id);
+    setRating(order.review.rating);
+    setComment(order.review.comment);
+    setActiveReviewId(null); // Close any open "Add Review" form
+  };
+
+  const handleUpdateReview = async () => {
+    if (!rating || !comment) {
+      alert("Please provide both a rating and a comment.");
+      return;
+    }
+
+    setReviewLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/api/reviews/${editingReviewId}`, {
+        rating,
+        comment
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert("Review updated successfully!");
+      setEditingReviewId(null);
+      setEditingOrderId(null);
+      setRating(0);
+      setComment("");
+      fetchOrders();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update review.");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (window.confirm("Are you sure you want to delete this review?")) {
+      setReviewLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Review deleted successfully!");
+        fetchOrders();
+      } catch (err) {
+        alert(err.response?.data?.message || "Failed to delete review.");
+      } finally {
+        setReviewLoading(false);
+      }
     }
   };
 
@@ -186,7 +243,27 @@ const MyOrders = () => {
                   )}
 
                   {order?.isReviewed && (
-                    <span className="reviewed-badge">⭐ Rated</span>
+                    <div className="review-display-actions" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <span className="reviewed-badge" style={{ display: 'block' }}>⭐ Rated: {order.review.rating}/5</span>
+                      <div className="review-btn-group" style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            className="btn-review-trigger" 
+                            style={{ fontSize: '0.7rem', padding: '4px 8px' }}
+                            onClick={() => handleEditClick(order)}
+                            disabled={reviewLoading}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn-review-trigger" 
+                            style={{ fontSize: '0.7rem', padding: '4px 8px', borderColor: 'var(--error)', color: 'var(--error)' }}
+                            onClick={() => handleDeleteReview(order.review._id)}
+                            disabled={reviewLoading}
+                          >
+                            Delete
+                          </button>
+                      </div>
+                    </div>
                   )}
 
                   <div className="order-timestamp" style={{ fontSize: '0.7rem', color: 'var(--on-surface-variant)', marginTop: 'auto' }}>
@@ -195,11 +272,11 @@ const MyOrders = () => {
                 </div>
               </div>
 
-              {/* Inline Review Form */}
-              {activeReviewId === order._id && (
+              {/* Inline Review/Edit Form */}
+              {(activeReviewId === order._id || editingOrderId === order._id) && (
                 <div className="inline-review-form">
                   <div className="review-form-header">
-                    <h4>Review your purchase</h4>
+                    <h4>{editingOrderId === order._id ? "Edit your review" : "Review your purchase"}</h4>
                     <div className="star-rating-input">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -221,13 +298,31 @@ const MyOrders = () => {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                   />
-                  <button 
-                    className="btn-submit-review"
-                    onClick={() => handleReviewSubmit(order.product._id, order._id)}
-                    disabled={reviewLoading}
-                  >
-                    {reviewLoading ? 'Posting...' : 'Submit Feedback'}
-                  </button>
+                  <div className="form-actions" style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                      className="btn-submit-review"
+                      onClick={() => editingOrderId === order._id ? handleUpdateReview() : handleReviewSubmit(order.product._id, order._id)}
+                      disabled={reviewLoading}
+                    >
+                      {reviewLoading ? (editingOrderId === order._id ? 'Updating...' : 'Posting...') : (editingOrderId === order._id ? 'Update Review' : 'Submit Feedback')}
+                    </button>
+                    {(activeReviewId === order._id || editingOrderId === order._id) && (
+                      <button 
+                        className="btn-submit-review" 
+                        style={{ background: 'transparent', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)' }}
+                        onClick={() => {
+                          setActiveReviewId(null);
+                          setEditingOrderId(null);
+                          setEditingReviewId(null);
+                          setRating(0);
+                          setComment("");
+                        }}
+                        disabled={reviewLoading}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </React.Fragment>

@@ -1,5 +1,10 @@
 import express from "express";
-import { addReview, getProductReviews } from "../controllers/reviewController.js";
+import { 
+  addReview, 
+  getProductReviews,
+  updateReview,
+  deleteReview 
+} from "../controllers/reviewController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -8,5 +13,9 @@ const router = express.Router();
 router.route("/:productId")
   .post(protect, addReview)
   .get(getProductReviews);
+
+router.route("/:id")
+  .put(protect, updateReview)
+  .delete(protect, deleteReview);
 
 export default router;

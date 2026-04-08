@@ -103,3 +103,74 @@ export const getProductReviews = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * @desc    Update review
+ * @route   PUT /api/reviews/:id
+ * @access  Private
+ */
+export const updateReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    // Check ownership
+    if (review.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to edit this review",
+      });
+    }
+
+    review.rating = Number(rating) || review.rating;
+    review.comment = comment || review.comment;
+
+    const updatedReview = await review.save();
+
+    res.json({
+      success: true,
+      data: updatedReview,
+    });
+  } catch (error) {
+    console.error("Error in updateReview:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Delete review
+ * @route   DELETE /api/reviews/:id
+ * @access  Private
+ */
+export const deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    // Check ownership
+    if (review.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this review",
+      });
+    }
+
+    await Review.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Review deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in deleteReview:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

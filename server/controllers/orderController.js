@@ -165,12 +165,21 @@ export const getMyOrders = async (req, res) => {
       product: { $in: productIds }
     });
 
-    const reviewedSet = new Set(reviews.map(r => r.product.toString()));
+    // Create a map: productId -> review
+    const reviewMap = {};
+    reviews.forEach(r => {
+      reviewMap[r.product.toString()] = r;
+    });
 
-    const ordersWithReviewFlag = safeOrders.map(order => ({
-      ...order,
-      isReviewed: order.product?._id ? reviewedSet.has(order.product._id.toString()) : false
-    }));
+    const ordersWithReviewFlag = safeOrders.map(order => {
+      const productId = order.product?._id?.toString();
+      const review = productId ? reviewMap[productId] : null;
+      return {
+        ...order,
+        isReviewed: !!review,
+        review: review || null
+      };
+    });
 
     return res.status(200).json({
       success: true,
