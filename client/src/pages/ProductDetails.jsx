@@ -20,6 +20,7 @@ const ProductDetails = () => {
     const [endDate, setEndDate] = useState('');
     const [productOrders, setProductOrders] = useState([]);
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
+    const [contactingSeller, setContactingSeller] = useState(false);
     
     // Review States
     const [reviews, setReviews] = useState([]);
@@ -128,6 +129,26 @@ const ProductDetails = () => {
         } catch (err) {
             setOrderStatus('error');
             setOrderMessage(err.response?.data?.message || 'Failed to place order.');
+        }
+    };
+
+    const handleContactSeller = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        setContactingSeller(true);
+        try {
+            const res = await axios.post(`http://localhost:5000/api/chat/${product._id}`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            navigate(`/messages/${res.data._id}`);
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || 'Failed to start conversation.');
+        } finally {
+            setContactingSeller(false);
         }
     };
 
@@ -287,9 +308,13 @@ const ProductDetails = () => {
                                             : product.type === 'rent' ? 'Request to Rent' : 'Instant Purchase'}
                                     </button>
 
-                                    <a href={`mailto:${seller.email}`} className="btn-secondary-action">
-                                        Contact Seller
-                                    </a>
+                                    <button 
+                                        onClick={handleContactSeller} 
+                                        className="btn-secondary-action" 
+                                        disabled={contactingSeller}
+                                    >
+                                        {contactingSeller ? 'Connecting...' : 'Message Seller'}
+                                    </button>
 
                                     {orderMessage && (
                                         <div className={`form-message ${orderStatus === 'success' ? 'success' : 'error'}`}>

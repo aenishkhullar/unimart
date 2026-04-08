@@ -109,6 +109,9 @@ const Navbar = () => {
                   <Link to="/wishlist" id="nav-wishlist-link" className="nav-dropdown-item" role="menuitem">
                     <span>🔖</span> Saved Items
                   </Link>
+                  <Link to="/messages" id="nav-messages-link" className="nav-dropdown-item" role="menuitem">
+                    <span>💬</span> Messages
+                  </Link>
                   <Link to="/seller-dashboard" id="nav-seller-dashboard-link" className="nav-dropdown-item" role="menuitem">
                     <span>📈</span> Seller Dashboard
                   </Link>

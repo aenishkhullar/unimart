@@ -11,6 +11,7 @@ import MyOrders from "./pages/MyOrders";
 import SellerDashboard from "./pages/SellerDashboard";
 import SellerProfile from "./pages/SellerProfile";
 import Wishlist from "./pages/Wishlist";
+import Messages from "./pages/Messages";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
@@ -61,6 +62,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Wishlist />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/messages" 
+          element={
+            <ProtectedRoute>
+              <Messages />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/messages/:id" 
+          element={
+            <ProtectedRoute>
+              <Messages />
             </ProtectedRoute>
           } 
         />
