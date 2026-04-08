@@ -35,3 +35,16 @@ body {
   object-fit: contain;
   display: block;
 }
+
+.seller-badge {
+  background: #ff6b00;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

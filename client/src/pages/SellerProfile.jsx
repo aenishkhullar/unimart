@@ -43,7 +43,7 @@ const SellerProfile = () => {
         );
     }
 
-    const { seller, products, reviews, avgRating, totalReviews } = data;
+    const { seller, products, reviews, avgRating, totalReviews, badge } = data;
 
     return (
         <div className="seller-profile-page">
@@ -55,6 +55,9 @@ const SellerProfile = () => {
                         </div>
                         <div className="seller-meta">
                             <h1 className="seller-name">{seller.name}</h1>
+                            {badge && (
+                                <span className="seller-badge">{badge}</span>
+                            )}
                             <p className="member-since">
                                 Member since {new Date(seller.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                             </p>

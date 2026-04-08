@@ -217,7 +217,12 @@ const ProductDetails = () => {
                             </div>
                             <div className="seller-details">
                                 <h4>SOLD BY</h4>
-                                <p>{seller.name || 'Unknown Seller'}</p>
+                                <p>
+                                    {seller.name || 'Unknown Seller'}
+                                    {seller.badge && (
+                                        <span className="seller-badge" style={{ marginLeft: '8px' }}>{seller.badge}</span>
+                                    )}
+                                </p>
                             </div>
                         </div>
 

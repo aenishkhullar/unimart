@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import Review from '../models/Review.js';
 
 // @desc    Create a product
 // @route   POST /api/products
@@ -144,9 +145,30 @@ export const getProductById = async (req, res) => {
     const product = await Product.findById(req.params.id).populate('user', 'name email');
 
     if (product) {
+      // Calculate seller badge
+      const sellerId = product.user._id || product.user;
+      const reviews = await Review.find({ seller: sellerId });
+      const totalReviews = reviews.length;
+      const avgRating = totalReviews > 0
+        ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+        : 0;
+
+      let badge = null;
+      if (avgRating >= 4 && totalReviews >= 3) {
+        badge = "Top Rated Seller";
+      } else if (totalReviews >= 1) {
+        badge = "Trusted Seller";
+      }
+
+      // Convert to object and attach badge to user
+      const productObj = product.toObject();
+      if (productObj.user) {
+        productObj.user.badge = badge;
+      }
+
       res.status(200).json({
         success: true,
-        data: product,
+        data: productObj,
       });
     } else {
       res.status(404).json({

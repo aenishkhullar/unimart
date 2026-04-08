@@ -201,6 +201,14 @@ export const getSellerProfile = async (req, res) => {
         ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
         : 0;
 
+    let badge = null;
+
+    if (avgRating >= 4 && totalReviews >= 3) {
+      badge = "Top Rated Seller";
+    } else if (totalReviews >= 1) {
+      badge = "Trusted Seller";
+    }
+
     return res.status(200).json({
       success: true,
       data: {
@@ -209,6 +217,7 @@ export const getSellerProfile = async (req, res) => {
         reviews,
         avgRating,
         totalReviews,
+        badge,
       },
     });
   } catch (error) {
