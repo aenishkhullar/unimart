@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import '../pages/Home.css';
 
 const Navbar = () => {
@@ -12,17 +13,59 @@ const Navbar = () => {
   const userString = localStorage.getItem('user');
   let user         = null;
 
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const notifRef = useRef(null);
+
   try {
     if (userString) user = JSON.parse(userString);
   } catch (e) {
     console.error('Failed to parse user from localStorage', e);
   }
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (token) {
+        try {
+          const res = await axios.get('http://localhost:5000/api/notifications', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setNotifications(res.data || []);
+        } catch(err) {
+          console.error(err);
+        }
+      }
+    };
+    fetchNotifications();
+  }, [token, location]);
+
+  const handleNotificationClick = async (notif) => {
+    if (!notif.isRead) {
+      try {
+        await axios.patch(`http://localhost:5000/api/notifications/${notif._id}`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications(prev => prev.map(n => n._id === notif._id ? { ...n, isRead: true } : n));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setNotifOpen(false);
+    if(notif.link) {
+      navigate(notif.link);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
   /* Close dropdown when clicking outside */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -70,8 +113,42 @@ const Navbar = () => {
         {/* ─── Auth actions ─── */}
         <div className="nav-actions">
           {token ? (
-            <div className="nav-profile-wrapper" ref={menuRef}>
-              {/* Circular avatar button */}
+            <>
+              <div className="nav-notif-wrapper" ref={notifRef}>
+                <button
+                  className="nav-notif-btn"
+                  onClick={() => setNotifOpen(!notifOpen)}
+                >
+                  🔔
+                  {unreadCount > 0 && (
+                    <span className="nav-notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  )}
+                </button>
+                {notifOpen && (
+                  <div className="nav-notif-dropdown">
+                    <div className="nav-notif-header">Notifications</div>
+                    <div className="nav-notif-body">
+                      {notifications.length === 0 ? (
+                        <div className="nav-notif-empty">No notifications</div>
+                      ) : (
+                        notifications.map(n => (
+                          <div 
+                            key={n._id} 
+                            className={`nav-notif-item ${!n.isRead ? 'unread' : ''}`}
+                            onClick={() => handleNotificationClick(n)}
+                          >
+                            <div className="nav-notif-text">{n.text}</div>
+                            <div className="nav-notif-time">{new Date(n.createdAt).toLocaleDateString()}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="nav-profile-wrapper" ref={menuRef}>
+                {/* Circular avatar button */}
               <button
                 id="nav-profile-btn"
                 className="nav-avatar-btn"
@@ -131,6 +208,7 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+            </>
           ) : (
             <>
               <Link to="/login" id="nav-login-link" className="nav-btn-ghost">

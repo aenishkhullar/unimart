@@ -1,6 +1,7 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
+import { createNotification } from "./notificationController.js";
 
 /**
  * @desc    Add review to product
@@ -61,6 +62,13 @@ export const addReview = async (req, res) => {
     });
 
     const savedReview = await review.save();
+
+    await createNotification(
+      product.user,
+      `New review received for ${product.title}`,
+      'review',
+      `/product/${product._id}`
+    );
 
     res.status(201).json({
       success: true,

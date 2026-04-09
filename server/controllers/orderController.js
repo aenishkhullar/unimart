@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Review from '../models/Review.js';
+import { createNotification } from './notificationController.js';
 
 // Reusable population configuration for Orders
 const orderPopulate = [
@@ -139,6 +140,13 @@ export const createOrder = async (req, res) => {
 
     const order = await Order.create(orderData);
 
+    await createNotification(
+      product.user,
+      `New order request for ${product.title}`,
+      'order',
+      '/seller-dashboard'
+    );
+
     // Fetch fully populated order for response
     const populatedOrder = await Order.findById(order._id)
       .populate(orderPopulate)
@@ -271,6 +279,24 @@ export const updateOrderStatus = async (req, res) => {
 
     order.status = status;
     await order.save();
+
+    let notificationText = '';
+    if (status === 'confirmed') {
+      notificationText = `Your order for ${order.product.title} has been confirmed.`;
+    } else if (status === 'completed') {
+      notificationText = `Your order for ${order.product.title} has been completed.`;
+    } else if (status === 'cancelled') {
+      notificationText = `Your order for ${order.product.title} was cancelled.`;
+    }
+
+    if (notificationText) {
+      await createNotification(
+        order.user,
+        notificationText,
+        'order',
+        '/my-orders'
+      );
+    }
 
     return res.status(200).json({
       success: true,

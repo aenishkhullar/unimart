@@ -1,6 +1,7 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import Product from "../models/Product.js";
+import { createNotification } from "./notificationController.js";
 
 // @desc    Create or get conversation
 // @route   POST /api/chat/:productId
@@ -109,6 +110,16 @@ export const sendMessage = async (req, res) => {
 
         conversation.lastMessage = text;
         await conversation.save();
+
+        const receiverId = conversation.participants.find(p => p.toString() !== senderId.toString());
+        if (receiverId) {
+            await createNotification(
+                receiverId,
+                'New message received',
+                'message',
+                '/messages'
+            );
+        }
 
         res.status(201).json(message);
     } catch (error) {
