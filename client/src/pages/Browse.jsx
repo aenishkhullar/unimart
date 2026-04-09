@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
 import CategoryNav from '../components/CategoryNav';
@@ -27,6 +28,11 @@ const CATEGORY_MAP = {
 };
 
 const Browse = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const params = new URLSearchParams(location.search);
+  const selectedCategory = params.get("category");
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,11 +54,12 @@ const Browse = () => {
       const mappedType = selectedType === 'Buy' ? 'sell' : selectedType === 'Rent' ? 'rent' : '';
       
       // Build query params
-      const params = new URLSearchParams();
-      if (debouncedQuery) params.append('keyword', debouncedQuery);
-      if (mappedType) params.append('type', mappedType);
+      const apiParams = new URLSearchParams();
+      if (debouncedQuery) apiParams.append('keyword', debouncedQuery);
+      if (mappedType) apiParams.append('type', mappedType);
+      if (selectedCategory) apiParams.append('category', selectedCategory);
 
-      const res = await axios.get(`http://localhost:5000/api/products?${params.toString()}`);
+      const res = await axios.get(`http://localhost:5000/api/products?${apiParams.toString()}`);
       setProducts(res.data.data || []);
       setError('');
     } catch (err) {
@@ -61,7 +68,7 @@ const Browse = () => {
     } finally {
       setLoading(false);
     }
-  }, [debouncedQuery, selectedType]);
+  }, [debouncedQuery, selectedType, selectedCategory]);
 
   useEffect(() => {
     fetchProducts();
@@ -135,6 +142,23 @@ const Browse = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleCategoryNavClick = (id) => {
+    const originalCat = CATEGORIES.find(c => c.toLowerCase().replace(/\s+/g, '-') === id);
+    if (originalCat) {
+      navigate(`/browse?category=${encodeURIComponent(originalCat)}`);
+    } else {
+      scrollToCategory(id);
+    }
+  };
+
+  const handleAllClick = () => {
+    if (selectedCategory) {
+      navigate('/browse');
+    } else {
+      scrollToTop();
+    }
+  };
+
   const totalResults = products.length;
 
   return (
@@ -155,8 +179,9 @@ const Browse = () => {
       {/* ━━━━━━━━━━━━━━━━ Category Navigation ━━━━━━━━━━━━━━━━ */}
       <CategoryNav 
         categories={CATEGORIES} 
-        onCategoryClick={scrollToCategory} 
-        onAllClick={scrollToTop} 
+        onCategoryClick={handleCategoryNavClick} 
+        onAllClick={handleAllClick} 
+        currentCategory={selectedCategory}
       />
 
       {/* ━━━━━━━━━━━━━━━━ Main Content ━━━━━━━━━━━━━━━━ */}

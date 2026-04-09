@@ -1,11 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const CategoryNav = ({ categories, onCategoryClick, onAllClick }) => {
+const CategoryNav = ({ categories, onCategoryClick, onAllClick, currentCategory }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const navRef = useRef(null);
 
+  // Sync activeCategory with currentCategory prop from URL
+  useEffect(() => {
+    if (currentCategory) {
+      setActiveCategory(currentCategory.toLowerCase().replace(/\s+/g, '-'));
+    } else {
+      setActiveCategory('All');
+    }
+  }, [currentCategory]);
+
   // IntersectionObserver to detect which section is in view
   useEffect(() => {
+    // Only use IntersectionObserver if we are not filtering by a specific category
+    if (currentCategory) return;
+
     const observerOptions = {
       root: null,
       rootMargin: '-120px 0px -60% 0px', // Adjust margin for the sticky header
@@ -29,7 +41,7 @@ const CategoryNav = ({ categories, onCategoryClick, onAllClick }) => {
 
     // Special case for top of page (All)
     const handleScroll = () => {
-      if (window.scrollY < 200) {
+      if (window.scrollY < 200 && !currentCategory) {
         setActiveCategory('All');
       }
     };
@@ -39,7 +51,7 @@ const CategoryNav = ({ categories, onCategoryClick, onAllClick }) => {
       observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [categories]);
+  }, [categories, currentCategory]);
 
   const handleNavClick = (cat) => {
     setActiveCategory(cat);

@@ -199,7 +199,7 @@ const Home = () => {
                 id={`cat-btn-${cat.value.replace(/\s+/g, '-')}`}
                 className="category-card-btn"
                 style={{ '--cat-color': cat.color }}
-                onClick={() => navigate(`/products?category=${encodeURIComponent(cat.value)}`)}
+                onClick={() => navigate(`/browse?category=${encodeURIComponent(cat.value)}`)}
               >
                 <div className="category-card-icon">{cat.icon}</div>
                 <div className="category-card-name">{cat.name}</div>
@@ -220,7 +220,7 @@ const Home = () => {
               <button
                 id="trending-see-all-btn"
                 className="btn-see-all"
-                onClick={() => navigate('/products')}
+                onClick={() => navigate('/browse')}
               >
                 See all →
               </button>
@@ -329,7 +329,7 @@ const Home = () => {
               <div className="footer-heading">Quick Links</div>
               <ul className="footer-links">
                 <li><a href="/">Home</a></li>
-                <li><a href="/products">Browse</a></li>
+                <li><a href="/browse">Browse</a></li>
                 <li><a href="/create-product">List Product</a></li>
               </ul>
             </div>
