@@ -12,7 +12,6 @@ const EditProduct = () => {
         price: '',
         category: '',
         type: 'sell',
-        rentDuration: '',
         deposit: ''
     });
     
@@ -32,7 +31,6 @@ const EditProduct = () => {
                     price: product.price || '',
                     category: product.category || '',
                     type: product.type || 'sell',
-                    rentDuration: product.rentDuration || '',
                     deposit: product.deposit || ''
                 });
                 setFetchLoading(false);
@@ -72,7 +70,6 @@ const EditProduct = () => {
 
             const payload = { ...formData };
             if (payload.type === 'sell') {
-                payload.rentDuration = '';
                 payload.deposit = '';
             }
 
@@ -171,18 +168,6 @@ const EditProduct = () => {
 
                 {formData.type === 'rent' && (
                     <div style={{ display: 'flex', gap: '20px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '6px', border: '1px dashed #ccc' }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ display: 'block', marginBottom: '8px', color: '#555', fontWeight: 'bold' }}>Rent Duration:</label>
-                            <input 
-                                type="text" 
-                                name="rentDuration" 
-                                value={formData.rentDuration} 
-                                onChange={handleChange} 
-                                required={formData.type === 'rent'} 
-                                placeholder="e.g., 1 month"
-                                style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px' }}
-                            />
-                        </div>
                         <div style={{ flex: 1 }}>
                             <label style={{ display: 'block', marginBottom: '8px', color: '#555', fontWeight: 'bold' }}>Deposit:</label>
                             <input 

@@ -34,6 +34,32 @@ const CreateProduct = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState("");
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setPreviewUrl(URL.createObjectURL(file));
+        const formData = new FormData();
+        formData.append("image", file);
+
+        setUploading(true);
+        setError('');
+
+        try {
+            const res = await axios.post('http://localhost:5000/api/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setImage(res.data.url);
+        } catch (err) {
+            setError('Image upload failed');
+            console.error(err);
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -96,6 +122,7 @@ const CreateProduct = () => {
                 setImage("");
                 setType("Sell");
                 setDeposit("");
+                setPreviewUrl("");
 
                 // 5. Success Feedback & Redirect
                 setTimeout(() => {
@@ -170,16 +197,22 @@ const CreateProduct = () => {
                         </div>
                     </div>
 
-                    {/* Image URL */}
+                    {/* Image Upload */}
                     <div className="form-group">
-                        <label className="form-label">Image URL</label>
+                        <label className="form-label">Product Image</label>
                         <input 
-                            type="text" 
+                            type="file" 
+                            accept="image/*"
                             className="form-input"
-                            placeholder="Paste a direct image link (JPEG, PNG)"
-                            value={image}
-                            onChange={(e) => setImage(e.target.value)}
+                            onChange={handleImageUpload}
+                            disabled={uploading || loading}
                         />
+                        {uploading && <div className="form-message" style={{color: '#666', marginTop: '5px'}}>Uploading image...</div>}
+                        {previewUrl && (
+                            <div className="image-preview-container" style={{ marginTop: '10px' }}>
+                                <img src={previewUrl} alt="Preview" style={{ maxWidth: '200px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                            </div>
+                        )}
                     </div>
 
                     {/* Listing Type */}
@@ -216,12 +249,12 @@ const CreateProduct = () => {
                     <button 
                         type="submit" 
                         className="btn-submit-listing"
-                        disabled={loading}
+                        disabled={loading || uploading}
                     >
-                        {loading ? (
+                        {loading || uploading ? (
                             <>
                                 <span className="loading-spinner-small"></span>
-                                Creating Listing...
+                                {uploading ? "Wait for upload..." : "Creating Listing..."}
                             </>
                         ) : (
                             "Create Product listing →"

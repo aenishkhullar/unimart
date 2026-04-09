@@ -39,12 +39,7 @@ export const createProduct = async (req, res) => {
           message: 'rentPrice is required for rental listings',
         });
       }
-      if (!rentDuration) {
-        return res.status(400).json({
-          success: false,
-          message: 'rentDuration is required for rental listings (e.g. "1 month", "2 weeks")',
-        });
-      }
+
       if (deposit === undefined || deposit === null || deposit === '') {
         return res.status(400).json({
           success: false,
@@ -66,7 +61,6 @@ export const createProduct = async (req, res) => {
     // Attach rent-specific fields only when type is 'rent'
     if (type === 'rent') {
       productData.rentPrice = Number(rentPrice);
-      productData.rentDuration = rentDuration;
       productData.deposit = Number(deposit);
       productData.price = Number(rentPrice); // Maintain legacy price field for list views
     } else {
