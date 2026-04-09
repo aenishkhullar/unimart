@@ -56,6 +56,28 @@ const FEATURES = [
   },
 ];
 
+/* ─── Testimonials data ─── */
+const TESTIMONIALS = [
+  {
+    name: 'Sarah K.',
+    role: 'Computer Science, Year 3',
+    text: "Saved me hundreds on textbooks! UniMart is a game changer for every student on campus.",
+    rating: 5,
+  },
+  {
+    name: 'James L.',
+    role: 'Business Admin, Year 1',
+    text: "Super smooth campus transactions. Better than the messy WhatsApp groups!",
+    rating: 5,
+  },
+  {
+    name: 'Arjun P.',
+    role: 'Engineering, Year 2',
+    text: "Rented a bike for a week. Trusted sellers and easy pickup. Best marketplace for students.",
+    rating: 5,
+  },
+];
+
 /* ═══════════════════════════════════════════════════════
    HOME COMPONENT
    ═══════════════════════════════════════════════════════ */
@@ -260,42 +282,33 @@ const Home = () => {
       </div>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ TESTIMONIAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <div className="testimonial-section">
+      <section className="testimonial-section">
         <div className="testimonial-inner">
-          <div className="section-eyebrow" style={{ textAlign: 'center', marginBottom: '2rem' }}>Student Stories</div>
-          <div className="testimonials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-            <div className="testimonial-card" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <p className="testimonial-quote" style={{ fontSize: '1rem', fontStyle: 'italic', marginBottom: '1.5rem', color: '#444' }}>
-                "Saved me hundreds on textbooks! UniMart is a game changer for every student on campus."
-              </p>
-              <div className="testimonial-author" style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#111' }}>
-                <span style={{ fontSize: '1.5rem', verticalAlign: 'middle', marginRight: '8px' }}>👩🏽‍🎓</span>
-                SARAH K., YEAR 3
+          <div className="testimonial-header">
+            <div className="section-eyebrow">VOICES OF UNIMART</div>
+            <h2 className="section-title">What Our Community Says</h2>
+          </div>
+          <div className="testimonials-grid">
+            {TESTIMONIALS.map((t, idx) => (
+              <div key={idx} className="testimonial-card">
+                <div className="testimonial-stars">
+                  {'⭐'.repeat(t.rating)}
+                </div>
+                <p className="testimonial-text">"{t.text}"</p>
+                <div className="testimonial-footer">
+                  <div className="testimonial-avatar">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div className="testimonial-author-info">
+                    <div className="testimonial-name">{t.name}</div>
+                    <div className="testimonial-role">{t.role}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div className="testimonial-card" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <p className="testimonial-quote" style={{ fontSize: '1rem', fontStyle: 'italic', marginBottom: '1.5rem', color: '#444' }}>
-                "Super smooth campus transactions. Better than the messy WhatsApp groups!"
-              </p>
-              <div className="testimonial-author" style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#111' }}>
-                <span style={{ fontSize: '1.5rem', verticalAlign: 'middle', marginRight: '8px' }}>👨🏻‍🎓</span>
-                JAMES L., YEAR 1
-              </div>
-            </div>
-
-            <div className="testimonial-card" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <p className="testimonial-quote" style={{ fontSize: '1rem', fontStyle: 'italic', marginBottom: '1.5rem', color: '#444' }}>
-                "Rented a bike for a week. Trusted sellers and easy pickup. Best marketplace for students."
-              </p>
-              <div className="testimonial-author" style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#111' }}>
-                <span style={{ fontSize: '1.5rem', verticalAlign: 'middle', marginRight: '8px' }}>👳🏽‍♂️</span>
-                ARJUN P., YEAR 2
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ CTA BANNER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <div className="cta-banner">
