@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema(
       enum: ['buyer', 'seller'],
       default: 'buyer',
     },
+    acceptedTerms: {
+      type: Boolean,
+      required: [true, 'You must accept Terms & Privacy Policy'],
+    },
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,

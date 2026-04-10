@@ -10,13 +10,20 @@ import Review from '../models/Review.js';
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, acceptedTerms } = req.body;
 
     // Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields (name, email, password)',
+      });
+    }
+
+    if (acceptedTerms !== true) {
+      return res.status(400).json({
+        success: false,
+        message: 'You must accept Terms & Privacy Policy',
       });
     }
 
@@ -42,6 +49,7 @@ export const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role: userRole,
+      acceptedTerms,
     });
 
     if (user) {

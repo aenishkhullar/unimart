@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import PrivacyPolicyModal from '../components/PrivacyPolicyModal';
 
 const Register = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        acceptedTerms: false
     });
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [isPolicyOpen, setIsPolicyOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        setFormData({ ...formData, [e.target.name]: value });
     };
 
     const handleSubmit = async (e) => {
@@ -77,13 +81,40 @@ const Register = () => {
                         minLength="6"
                     />
                 </div>
-                <button type="submit" style={{ padding: '12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '16px', marginTop: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input 
+                        type="checkbox" 
+                        name="acceptedTerms" 
+                        checked={formData.acceptedTerms} 
+                        onChange={handleChange} 
+                        style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                    />
+                    <label style={{ color: '#555', fontSize: '14px' }}>
+                        I agree to the <span onClick={() => setIsPolicyOpen(true)} style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy and Terms of Service</span>
+                    </label>
+                </div>
+                <button 
+                    type="submit" 
+                    disabled={!formData.acceptedTerms}
+                    style={{ 
+                        padding: '12px', 
+                        backgroundColor: formData.acceptedTerms ? '#007bff' : '#ccc', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '3px', 
+                        cursor: formData.acceptedTerms ? 'pointer' : 'not-allowed', 
+                        fontSize: '16px', 
+                        marginTop: '10px',
+                        transition: 'background-color 0.3s'
+                    }}
+                >
                     Register
                 </button>
             </form>
             <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px', color: '#666' }}>
                 Already have an account? <Link to="/login" style={{ color: '#007bff', textDecoration: 'none' }}>Login here</Link>
             </p>
+            <PrivacyPolicyModal isOpen={isPolicyOpen} onClose={() => setIsPolicyOpen(false)} />
         </div>
     );
 };
