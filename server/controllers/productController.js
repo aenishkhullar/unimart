@@ -6,7 +6,7 @@ import Review from '../models/Review.js';
 // @access  Private
 export const createProduct = async (req, res) => {
   try {
-    const { title, description, price, category, type, rentPrice, rentDuration, deposit, image } = req.body;
+    const { title, description, price, category, type, rentPrice, rentDuration, deposit, image, quantity } = req.body;
 
     // Validate common required fields
     if (!title || !description || !category || !type) {
@@ -64,6 +64,7 @@ export const createProduct = async (req, res) => {
       type,
       user: req.user._id,
       image: image || undefined,
+      quantity: Number(quantity) || 1,
     };
 
     // Attach rent-specific fields only when type is 'rent'
@@ -313,6 +314,64 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server Error: Unable to delete product',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Restock a sold out product (owner only)
+// @route   PATCH /api/products/:id/restock
+// @access  Private
+export const restockProduct = async (req, res) => {
+  try {
+    const { newStock } = req.body;
+
+    if (!newStock || newStock < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid newStock is required (minimum 1)',
+      });
+    }
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+
+    // Ownership check
+    if (product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized. You can only restock your own products',
+      });
+    }
+
+    product.quantity = Number(newStock);
+    product.soldCount = 0;
+    product.isSoldOut = false;
+
+    const updatedProduct = await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product restocked successfully',
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error('Error restocking product:', error.message);
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+    res.status(500).json({
+      success: false,
+      message: 'Server Error: Unable to restock product',
       error: error.message,
     });
   }

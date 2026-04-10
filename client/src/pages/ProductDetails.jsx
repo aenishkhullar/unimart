@@ -37,6 +37,12 @@ const ProductDetails = () => {
     // Report Modal State
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
+    // Restock Modal State
+    const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
+    const [restockQuantity, setRestockQuantity] = useState(1);
+    const [restockLoading, setRestockLoading] = useState(false);
+    const [restockError, setRestockError] = useState('');
+
     const today = new Date().toISOString().split('T')[0];
     const userStr = localStorage.getItem('user');
     const currentUser = userStr ? JSON.parse(userStr) : null;
@@ -127,6 +133,12 @@ const ProductDetails = () => {
         setOrderMessage('');
         const payload = { productId: product._id };
 
+        if (product.isSoldOut) {
+            setOrderMessage('This item is sold out');
+            setOrderStatus('error');
+            return;
+        }
+
         // Require license for Transport
         if (product.category === 'Transport') {
             if (!licenseNumber.trim()) {
@@ -206,6 +218,36 @@ const ProductDetails = () => {
         alert("Reviews can only be added from the My Orders page after a completed purchase.");
     };
 
+    const handleRestockSubmit = async (e) => {
+        e.preventDefault();
+        setRestockError('');
+        setRestockLoading(true);
+        
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.patch(`http://localhost:5000/api/products/${id}/restock`, 
+                { newStock: Number(restockQuantity) },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            // Update product data locally
+            setProduct(res.data.data || res.data);
+            
+            // Close modal
+            setIsRestockModalOpen(false);
+            setRestockQuantity(1);
+            // reset order message if it was "Sold Out"
+            if (orderMessage === 'This item is sold out') {
+                setOrderMessage('');
+                setOrderStatus(null);
+            }
+        } catch (err) {
+            setRestockError(err.response?.data?.message || 'Failed to restock product.');
+        } finally {
+            setRestockLoading(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="product-details-page error-vibe">
@@ -256,6 +298,7 @@ const ProductDetails = () => {
                             </div>
                         )}
                         <div className="info-header-meta">
+                            {product.isSoldOut && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white'}}>Sold Out</span>}
                             <span className="badge badge-category">{product.category}</span>
                             <span className="badge badge-type">{product.type.toUpperCase()}</span>
                             <span className="trust-rating">
@@ -327,6 +370,15 @@ const ProductDetails = () => {
                                     <Link to={`/edit-product/${product._id}`} className="btn-primary-action">
                                         Edit Listing
                                     </Link>
+                                    {product.isSoldOut && (
+                                        <button 
+                                            onClick={() => setIsRestockModalOpen(true)} 
+                                            className="btn-primary-action"
+                                            style={{ background: 'var(--primary)', color: '#fff', marginTop: '10px' }}
+                                        >
+                                            Restock Product
+                                        </button>
+                                    )}
                                     <button onClick={handleDelete} className="btn-secondary-action btn-owner-delete">
                                         Remove Listing
                                     </button>
@@ -412,9 +464,11 @@ const ProductDetails = () => {
                                     <button 
                                         className="btn-primary-action"
                                         onClick={handleOrder}
-                                        disabled={orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0) || (product.category === 'Transport' && !licenseNumber.trim())}
+                                        disabled={product.isSoldOut || orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0) || (product.category === 'Transport' && !licenseNumber.trim())}
                                     >
-                                        {orderStatus === 'loading' 
+                                        {product.isSoldOut 
+                                            ? 'Sold Out'
+                                            : orderStatus === 'loading' 
                                             ? 'Requesting...' 
                                             : product.type === 'rent' ? 'Request to Rent' : 'Instant Purchase'}
                                     </button>
@@ -603,6 +657,46 @@ const ProductDetails = () => {
                 targetId={product?._id} 
                 targetName={product?.title} 
             />
+
+            {isRestockModalOpen && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+                    <div className="modal-content" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+                        <h2 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#333' }}>Restock Item</h2>
+                        {restockError && <div style={{ color: '#dc3545', marginBottom: '1rem', padding: '0.5rem', background: '#fff5f5', borderRadius: '6px' }}>{restockError}</div>}
+                        <form onSubmit={handleRestockSubmit}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#555' }}>New Stock Quantity</label>
+                                <input 
+                                    type="number" 
+                                    min="1" 
+                                    value={restockQuantity} 
+                                    onChange={(e) => setRestockQuantity(e.target.value)} 
+                                    disabled={restockLoading}
+                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem', boxSizing: 'border-box' }}
+                                    required
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsRestockModalOpen(false)} 
+                                    disabled={restockLoading}
+                                    style={{ padding: '0.75rem 1.5rem', border: 'none', background: '#e2e3e5', color: '#333', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={restockLoading}
+                                    style={{ padding: '0.75rem 1.5rem', border: 'none', background: 'var(--primary)', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                                >
+                                    {restockLoading ? 'Restocking...' : 'Confirm Restock'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

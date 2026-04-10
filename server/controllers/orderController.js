@@ -56,6 +56,13 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    if (product.isSoldOut) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product is sold out',
+      });
+    }
+
     // Block "sell" for Transport category
     if (product.category === 'Transport' && product.type === 'sell') {
       return res.status(400).json({
@@ -310,6 +317,17 @@ export const updateOrderStatus = async (req, res) => {
 
     order.status = status;
     await order.save();
+
+    if (status === 'completed') {
+      const prod = await Product.findById(order.product._id);
+      if (prod) {
+        prod.soldCount = (prod.soldCount || 0) + 1;
+        if (prod.quantity && prod.soldCount >= prod.quantity) {
+          prod.isSoldOut = true;
+        }
+        await prod.save();
+      }
+    }
 
     let notificationText = '';
     if (status === 'confirmed') {

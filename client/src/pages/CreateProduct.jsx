@@ -30,6 +30,7 @@ const CreateProduct = () => {
     const [type, setType] = useState("Sell");
     const [image, setImage] = useState("");
     const [deposit, setDeposit] = useState("");
+    const [quantity, setQuantity] = useState(1);
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -67,8 +68,8 @@ const CreateProduct = () => {
         setSuccess('');
 
         // 1. Validation
-        if (!title.trim() || !price || !category) {
-            setError(`Please fill all required fields (Title, ${type === 'Sell' ? 'Selling Price' : 'Rent Price'}, Category)`);
+        if (!title.trim() || !price || !category || !quantity) {
+            setError(`Please fill all required fields (Title, ${type === 'Sell' ? 'Selling Price' : 'Rent Price'}, Category, Quantity)`);
             return;
         }
 
@@ -98,7 +99,8 @@ const CreateProduct = () => {
                 description,
                 category,
                 type: finalType,
-                image: image || undefined
+                image: image || undefined,
+                quantity: Number(quantity)
             };
 
             if (finalType === 'rent') {
@@ -122,6 +124,7 @@ const CreateProduct = () => {
                 setImage("");
                 setType("Sell");
                 setDeposit("");
+                setQuantity(1);
                 setPreviewUrl("");
 
                 // 5. Success Feedback & Redirect
@@ -201,6 +204,17 @@ const CreateProduct = () => {
                                 ))}
                             </select>
                         </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Quantity *</label>
+                        <input 
+                            type="number" 
+                            className="form-input"
+                            min="1"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                        />
                     </div>
 
                     {/* Image Upload */}

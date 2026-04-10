@@ -6,6 +6,7 @@ import {
   getMyProducts,
   updateProduct,
   deleteProduct,
+  restockProduct,
 } from '../controllers/productController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -17,5 +18,7 @@ router.route('/:id')
   .get(getProductById)
   .put(protect, updateProduct)
   .delete(protect, deleteProduct);
+
+router.route('/:id/restock').patch(protect, restockProduct);
 
 export default router;

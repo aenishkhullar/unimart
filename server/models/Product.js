@@ -41,6 +41,19 @@ const productSchema = new mongoose.Schema(
     image: {
       type: String,
       default: "https://via.placeholder.com/300"
+    },
+    quantity: {
+      type: Number,
+      required: [true, 'Please add a product quantity'],
+      min: [1, 'Quantity must be at least 1']
+    },
+    soldCount: {
+      type: Number,
+      default: 0
+    },
+    isSoldOut: {
+      type: Boolean,
+      default: false
     }
   },
   {

@@ -5,45 +5,60 @@ import './Dashboard.css';
 
 const SellerDashboard = () => {
   const [orders, setOrders]   = useState([]);
+  const [products, setProducts] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
   const [verifyingOrderId, setVerifyingOrderId] = useState(null);
+  
+  // Restock Modal State
+  const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
+  const [restockProductId, setRestockProductId] = useState(null);
+  const [restockQuantity, setRestockQuantity] = useState(1);
+  const [restockLoading, setRestockLoading] = useState(false);
+  const [restockError, setRestockError] = useState('');
+
   const navigate = useNavigate();
 
+  const fetchSellerData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const res = await axios.get('http://localhost:5000/api/orders/seller-orders', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const productsRes = await axios.get('http://localhost:5000/api/products/my-products', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Safe extraction from res.data.orders
+      const ordersData = Array.isArray(res.data?.orders) ? res.data.orders : [];
+      const productsData = Array.isArray(productsRes.data?.data) ? productsRes.data.data : [];
+      
+      // Final Sort by latest first (createdAt DESC)
+      const sortedOrders = [...ordersData].sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      
+      setOrders(sortedOrders);
+      setProducts(productsData);
+      setTotalEarnings(res.data.totalEarnings || 0);
+    } catch (err) {
+      console.error('Fetch Seller Data Error:', err);
+      setError(err.response?.data?.message || 'Unable to load seller analytics. Check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchSellerOrders = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      try {
-        const res = await axios.get('http://localhost:5000/api/orders/seller-orders', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        // Safe extraction from res.data.orders
-        const ordersData = Array.isArray(res.data?.orders) ? res.data.orders : [];
-        
-        // Final Sort by latest first (createdAt DESC)
-        const sortedOrders = [...ordersData].sort((a, b) => 
-          new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        
-        setOrders(sortedOrders);
-        setTotalEarnings(res.data.totalEarnings || 0);
-      } catch (err) {
-        console.error('Fetch Seller Orders Error:', err);
-        setError(err.response?.data?.message || 'Unable to load seller analytics. Check your connection.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSellerOrders();
-  }, [navigate]);
+    fetchSellerData();
+  }, []); // Run on mount
 
   const updateOrderStatus = async (orderId, newStatus) => {
     const token = localStorage.getItem('token');
@@ -61,6 +76,8 @@ const SellerDashboard = () => {
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
+      // Re-fetch to ensure consistency if needed, or just rely on optimistic update
+      // fetchSellerData(); 
     } catch (err) {
       alert(`Error updating status: ${err.response?.data?.message || err.message}`);
     }
@@ -128,6 +145,39 @@ const SellerDashboard = () => {
     } finally {
       setVerifyingOrderId(null);
     }
+  };
+
+  const handleRestockSubmit = async (e) => {
+    e.preventDefault();
+    setRestockError('');
+    setRestockLoading(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.patch(`http://localhost:5000/api/products/${restockProductId}/restock`, 
+        { newStock: Number(restockQuantity) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Update UI instantly
+      setProducts(prev => prev.map(p => p._id === restockProductId ? res.data.data || res.data : p));
+      
+      // Close modal
+      setIsRestockModalOpen(false);
+      setRestockProductId(null);
+      setRestockQuantity(1);
+    } catch (err) {
+      setRestockError(err.response?.data?.message || 'Failed to restock product.');
+    } finally {
+      setRestockLoading(false);
+    }
+  };
+
+  const openRestockModal = (productId) => {
+    setRestockProductId(productId);
+    setRestockQuantity(1);
+    setIsRestockModalOpen(true);
+    setRestockError('');
   };
 
   if (loading) {
@@ -298,7 +348,108 @@ const SellerDashboard = () => {
             ))}
           </div>
         )}
+
+        <h2 className="section-title" style={{ marginTop: '3rem', marginBottom: '1.5rem', fontSize: '1.25rem' }}>My Listings</h2>
+
+        {products.length === 0 ? (
+          <div className="empty-state">
+            <h2 className="empty-text">No listings yet</h2>
+            <p className="empty-sub">Create a listing to get started.</p>
+          </div>
+        ) : (
+          <div className="orders-list">
+            {products.map((product) => (
+              <div key={product._id} className="order-card" style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="order-img-wrapper">
+                    <img 
+                      src={product.image || "https://via.placeholder.com/300"} 
+                      alt="product" 
+                      className="product-image" 
+                    />
+                </div>
+                
+                <div className="order-details" style={{ flexGrow: 1 }}>
+                  <div className="order-meta">
+                    <span className="order-category">{product.category || 'General'}</span>
+                    <span className={`card-type-badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
+                      {product.type === 'rent' ? 'Rent' : 'Buy'}
+                    </span>
+                  </div>
+                  <h3 className="order-title">{product.title}</h3>
+                  <div className="order-info-row">
+                    <div className="order-info-item">
+                      <span className="info-label">Stock Status</span>
+                      <span className="info-value" style={{ color: product.isSoldOut ? 'var(--error)' : 'inherit', fontWeight: 'bold' }}>
+                        {product.isSoldOut ? 'Sold Out' : `${product.quantity - (product.soldCount || 0)} available`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="order-actions-side" style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => navigate(`/edit-product/${product._id}`)} 
+                    className="btn-action"
+                    style={{ background: '#f8f9fa', color: '#333', border: '1px solid #ddd' }}
+                  >
+                    Edit
+                  </button>
+                  {product.isSoldOut && (
+                    <button 
+                      onClick={() => openRestockModal(product._id)} 
+                      className="btn-action btn-confirm"
+                      style={{ background: 'var(--primary)', color: '#fff' }}
+                    >
+                      Restock
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
       </div>
+
+      {isRestockModalOpen && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div className="modal-content" style={{ background: '#fff', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#333' }}>Restock Item</h2>
+            {restockError && <div style={{ color: 'var(--error)', marginBottom: '1rem', padding: '0.5rem', background: '#fff5f5', borderRadius: '6px' }}>{restockError}</div>}
+            <form onSubmit={handleRestockSubmit}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#555' }}>New Stock Quantity</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  value={restockQuantity} 
+                  onChange={(e) => setRestockQuantity(e.target.value)} 
+                  disabled={restockLoading}
+                  style={{ width: '100%', padding: '0.75rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' }}
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setIsRestockModalOpen(false)} 
+                  disabled={restockLoading}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', background: '#e2e3e5', color: '#333', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={restockLoading}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', background: 'var(--primary)', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  {restockLoading ? 'Restocking...' : 'Confirm Restock'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

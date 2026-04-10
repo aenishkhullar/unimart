@@ -34,6 +34,11 @@ const ProductCard = ({ product }) => {
         <span className={`listing-type-badge ${product.type === 'rent' ? 'rent' : 'sell'}`}>
           {product.type === 'rent' ? 'RENT' : 'BUY'}
         </span>
+        {product.isSoldOut && (
+          <span className="listing-sold-out-badge" style={{position: 'absolute', top: '10px', right: '40px', background: 'rgba(220, 53, 69, 0.9)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 10, letterSpacing: '1px'}}>
+            SOLD OUT
+          </span>
+        )}
         
         {/* Bookmark Button */}
         <button
