@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['buyer', 'seller'],
-      default: 'buyer',
+      enum: ['user', 'admin'],
+      default: 'user',
     },
     acceptedTerms: {
       type: Boolean,
@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
         ref: 'Product',
       },
     ],
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

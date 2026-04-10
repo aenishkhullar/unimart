@@ -8,6 +8,7 @@ const Login = () => {
         password: ''
     });
     const [error, setError] = useState('');
+    const [toastMessage, setToastMessage] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -37,12 +38,22 @@ const Login = () => {
                 navigate('/');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid email or password.');
+            if (err.response?.status === 403) {
+                setToastMessage(err.response?.data?.message || 'Your account is blocked.');
+                setTimeout(() => setToastMessage(''), 5000);
+            } else {
+                setError(err.response?.data?.message || 'Invalid email or password.');
+            }
         }
     };
 
     return (
         <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '5px', fontFamily: 'sans-serif' }}>
+            {toastMessage && (
+                <div style={{ position: 'fixed', top: '20px', right: '20px', backgroundColor: '#dc3545', color: 'white', padding: '15px 20px', borderRadius: '5px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', zIndex: 1000 }}>
+                    {toastMessage}
+                </div>
+            )}
             <h2 style={{ textAlign: 'center', color: '#333' }}>Login</h2>
             {error && <div style={{ color: 'red', marginBottom: '10px', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '3px' }}>{error}</div>}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

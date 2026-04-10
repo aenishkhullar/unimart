@@ -192,6 +192,11 @@ const Navbar = () => {
                   <Link to="/seller-dashboard" id="nav-seller-dashboard-link" className="nav-dropdown-item" role="menuitem">
                     <span>📈</span> Seller Dashboard
                   </Link>
+                  {user?.role === 'admin' && (
+                    <Link to="/admin" id="nav-admin-link" className="nav-dropdown-item" role="menuitem">
+                      <span>🛡️</span> Admin Panel
+                    </Link>
+                  )}
                   <div className="nav-dropdown-divider" />
                   <Link to="/create-product" className="nav-dropdown-item" role="menuitem">
                     <span>➕</span> List an Item

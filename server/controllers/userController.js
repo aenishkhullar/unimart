@@ -42,7 +42,7 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create user object
-    const userRole = role && ['buyer', 'seller'].includes(role) ? role : 'buyer';
+    const userRole = role && ['user', 'admin'].includes(role) ? role : 'user';
     
     const user = await User.create({
       name,
@@ -112,6 +112,12 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password',
+      });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({
+        message: "Your account has been blocked. Contact support."
       });
     }
 

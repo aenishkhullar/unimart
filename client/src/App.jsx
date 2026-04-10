@@ -13,7 +13,8 @@ import SellerProfile from "./pages/SellerProfile";
 import Wishlist from "./pages/Wishlist";
 import Messages from "./pages/Messages";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -82,6 +83,14 @@ function App() {
           } 
         />
         <Route path="/seller/:id" element={<SellerProfile />} />
+        <Route 
+          path="/admin" 
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } 
+        />
       </Routes>
     </>
   );
