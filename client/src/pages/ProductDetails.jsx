@@ -350,6 +350,10 @@ const ProductDetails = () => {
                                         </>
                                     )}
 
+                                    <div className="product-policy-bar">
+                                        <span>⚠️</span> This product is listed at a fixed price. Negotiation is not allowed.
+                                    </div>
+
                                     <button 
                                         className="btn-primary-action"
                                         onClick={handleOrder}

@@ -153,12 +153,6 @@ const Messages = () => {
         }
     };
 
-    const quickReplies = [
-        "No negotiation",
-        "Fixed price",
-        "Available today"
-    ];
-
     if (!currentUser) return null;
 
     return (
@@ -236,6 +230,11 @@ const Messages = () => {
                                 })()}
                             </div>
 
+                            <div className="chat-policy-bar">
+                                <span className="policy-icon">💡</span>
+                                <span>UniMart follows a fixed-price policy. Negotiation is not supported.</span>
+                            </div>
+
                             <div className="chat-messages-container">
                                 {loadingMessages ? (
                                     <div className="loading-state">Loading messages...</div>
@@ -256,18 +255,6 @@ const Messages = () => {
                             </div>
 
                             <div className="chat-input-area">
-                                <div className="quick-replies-container">
-                                    {quickReplies.map((qr, idx) => (
-                                        <button 
-                                            key={idx} 
-                                            className="quick-reply-btn"
-                                            onClick={() => handleSendMessage(qr)}
-                                            disabled={sending}
-                                        >
-                                            {qr}
-                                        </button>
-                                    ))}
-                                </div>
                                 <form 
                                     className="chat-input-form"
                                     onSubmit={(e) => {

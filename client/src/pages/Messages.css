@@ -238,36 +238,30 @@
     margin-top: 0.25rem;
 }
 
+.chat-policy-bar {
+    background: #fff8e1;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    color: #6d4c41;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.policy-icon {
+    font-size: 1rem;
+}
+
 .chat-input-area {
-    padding: 1rem 1.5rem;
+    padding: 1.5rem;
     background: var(--surface);
     border-top: 1px solid var(--border);
 }
 
-.quick-replies-container {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-}
+/* Removal of quick-replies-container and quick-reply-btn as they are no longer used */
 
-.quick-reply-btn {
-    background: var(--surface-low);
-    border: 1px solid var(--border);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-
-.quick-reply-btn:hover {
-    background: var(--surface-hover);
-    border-color: var(--accent);
-}
 
 .chat-input-form {
     display: flex;
