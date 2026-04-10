@@ -8,13 +8,13 @@ import './Home.css';
 /* ─── Category config (updated list) ─── */
 const CATEGORIES = [
   { name: 'Books',            value: 'Books',             icon: '📚', color: '#FFF3E0' },
-  { name: 'Dorm Essentials',  value: 'Dorm Essentials',   icon: '🛏️', color: '#E8F5E9' },
   { name: 'Electronics',      value: 'Electronics',        icon: '💻', color: '#E3F2FD' },
-  { name: 'Stationery',       value: 'Stationery',         icon: '✏️', color: '#F3E5F5' },
   { name: 'Clothing',         value: 'Clothing',           icon: '👕', color: '#FCE4EC' },
   { name: 'Lifestyle',        value: 'Lifestyle',          icon: '🎯', color: '#E0F7FA' },
-  { name: 'Transport',        value: 'Transport',          icon: '🚲', color: '#FFF9C4' },
+  { name: 'Dorm Essentials',  value: 'Dorm Essentials',   icon: '🛏️', color: '#E8F5E9' },
+  { name: 'Stationery',       value: 'Stationery',         icon: '✏️', color: '#F3E5F5' },
   { name: 'Others',           value: 'Others',             icon: '📦', color: '#F5F5F5' },
+  { name: 'Transport',        value: 'Transport',          icon: '🚲', color: '#FFF9C4' },
 ];
 
 const CATEGORY_ICON_MAP = {
@@ -349,10 +349,10 @@ const Home = () => {
             <div>
               <div className="footer-heading">Categories</div>
               <ul className="footer-links">
-                <li><a href="/#">Books</a></li>
-                <li><a href="/#">Electronics</a></li>
-                <li><a href="/#">Dorm Essentials</a></li>
-                <li><a href="/#">Clothing</a></li>
+                <li><a href="/browse?category=Books">Books</a></li>
+                <li><a href="/browse?category=Electronics">Electronics</a></li>
+                <li><a href="/browse?category=Transport">Transport</a></li>
+                <li><a href="/browse?category=Dorm%20Essentials">Dorm Essentials</a></li>
               </ul>
             </div>
             <div>

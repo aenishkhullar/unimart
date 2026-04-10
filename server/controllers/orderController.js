@@ -38,7 +38,7 @@ const mapSafeOrders = (orders) => {
 // @access  Private
 export const createOrder = async (req, res) => {
   try {
-    const { productId, rentStartDate, rentEndDate } = req.body;
+    const { productId, rentStartDate, rentEndDate, licenseNumber } = req.body;
 
     if (!productId) {
       return res.status(400).json({
@@ -56,6 +56,24 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // Block "sell" for Transport category
+    if (product.category === 'Transport' && product.type === 'sell') {
+      return res.status(400).json({
+        success: false,
+        message: 'Transport items can only be rented, not sold.',
+      });
+    }
+
+    // Require licenseNumber for Transport category orders
+    if (product.category === 'Transport') {
+      if (!licenseNumber || !licenseNumber.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'A valid driving license number is required for renting Transport items.',
+        });
+      }
+    }
+
     // Determine type from the product (sell → buy, rent → rent)
     const type = product.type === 'sell' ? 'buy' : 'rent';
 
@@ -66,6 +84,11 @@ export const createOrder = async (req, res) => {
       type,
       price: product.type === 'sell' ? product.price : product.rentPrice,
     };
+
+    // Attach license number for Transport category
+    if (product.category === 'Transport' && licenseNumber) {
+      orderData.licenseNumber = licenseNumber.trim();
+    }
 
     // Calculation logic based on product type
     if (type === 'rent') {
@@ -275,6 +298,14 @@ export const updateOrderStatus = async (req, res) => {
                 message: 'Confirmed orders can only be completed or cancelled',
             });
         }
+
+        // Enforce license verification for Transport category before completion
+        if (status === 'completed' && order.product.category === 'Transport' && !order.isLicenseVerified) {
+            return res.status(400).json({
+                success: false,
+                message: 'License must be verified before completing order',
+            });
+        }
     }
 
     order.status = status;
@@ -406,6 +437,53 @@ export const getSellerOrders = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error while fetching seller orders',
+    });
+  }
+};
+
+// @desc    Verify a buyer's license for a Transport order
+// @route   PUT /api/orders/:id/verify-license
+// @access  Private (Seller only)
+export const verifyLicense = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await Order.findById(id).populate('product');
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    // Only the product owner (seller) can verify license
+    if (order.product.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to verify this license',
+      });
+    }
+
+    if (!order.licenseNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'No license number associated with this order',
+      });
+    }
+
+    order.isLicenseVerified = true;
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'License verified successfully',
+      order,
+    });
+  } catch (error) {
+    console.error('Error in verifyLicense:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while verifying license',
     });
   }
 };

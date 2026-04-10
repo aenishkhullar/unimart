@@ -9,22 +9,24 @@ import './Browse.css';
 
 const CATEGORIES = [
   'Books',
-  'Dorm Essentials',
   'Electronics',
-  'Stationery',
   'Clothing',
   'Lifestyle',
+  'Dorm Essentials',
+  'Stationery',
   'Others',
+  'Transport',
 ];
 
 const CATEGORY_MAP = {
   'books': 'Books',
   'electronics': 'Electronics',
-  'dorm essentials': 'Dorm Essentials',
-  'stationery': 'Stationery',
   'clothing': 'Clothing',
   'lifestyle': 'Lifestyle',
+  'dorm essentials': 'Dorm Essentials',
+  'stationery': 'Stationery',
   'others': 'Others',
+  'transport': 'Transport',
 };
 
 const Browse = () => {
@@ -101,10 +103,15 @@ const Browse = () => {
 
     products.forEach((product) => {
       const normCat = normalize(product.category);
-      const targetCat = CATEGORY_MAP[normCat] || 'Others';
+      // Try exact map first, then case-insensitive check against CATEGORIES
+      const targetCat = CATEGORY_MAP[normCat] || 
+                        CATEGORIES.find(c => c.toLowerCase() === normCat) || 
+                        'Others';
+      
       if (groups[targetCat]) {
         groups[targetCat].push(product);
       } else {
+        // Final fallback to Others
         groups['Others'].push(product);
       }
     });

@@ -22,6 +22,7 @@ const ProductDetails = () => {
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
     const [rentDays, setRentDays] = useState(0);
     const [contactingSeller, setContactingSeller] = useState(false);
+    const [licenseNumber, setLicenseNumber] = useState('');
     
     // Review States
     const [reviews, setReviews] = useState([]);
@@ -121,6 +122,16 @@ const ProductDetails = () => {
         setOrderStatus('loading');
         setOrderMessage('');
         const payload = { productId: product._id };
+
+        // Require license for Transport
+        if (product.category === 'Transport') {
+            if (!licenseNumber.trim()) {
+                setOrderMessage('Please enter your driving license number.');
+                setOrderStatus('error');
+                return;
+            }
+            payload.licenseNumber = licenseNumber.trim();
+        }
         
         if (product.type === 'rent') {
             if (!startDate || !endDate) {
@@ -237,7 +248,7 @@ const ProductDetails = () => {
                     <div className="product-info-panel">
                         {product.category === 'Transport' && (
                             <div style={{background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                <span>⚠️</span> Valid driving license required to purchase/rent this item.
+                                <span>⚠️</span> Valid driving license required for renting this vehicle.
                             </div>
                         )}
                         <div className="info-header-meta">
@@ -354,10 +365,41 @@ const ProductDetails = () => {
                                         <span>⚠️</span> This product is listed at a fixed price. Negotiation is not allowed.
                                     </div>
 
+                                    {product.category === 'Transport' && !isOwner && (
+                                        <div style={{ marginBottom: '15px' }}>
+                                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', marginBottom: '6px' }}>
+                                                Driving License Number *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="Enter your driving license number"
+                                                value={licenseNumber}
+                                                onChange={(e) => setLicenseNumber(e.target.value)}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '12px 14px',
+                                                    border: '1.5px solid var(--outline-variant)',
+                                                    borderRadius: '10px',
+                                                    fontFamily: 'var(--font-body)',
+                                                    fontSize: '0.95rem',
+                                                    outline: 'none',
+                                                    transition: 'border-color 0.2s ease',
+                                                    background: 'var(--surface-white)',
+                                                    boxSizing: 'border-box'
+                                                }}
+                                                onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                                                onBlur={(e) => e.target.style.borderColor = 'var(--outline-variant)'}
+                                            />
+                                            <div style={{ fontSize: '0.78rem', color: 'var(--on-surface-variant)', marginTop: '5px' }}>
+                                                🛡️ Your license number will only be shared with the seller for verification.
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <button 
                                         className="btn-primary-action"
                                         onClick={handleOrder}
-                                        disabled={orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0)}
+                                        disabled={orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0) || (product.category === 'Transport' && !licenseNumber.trim())}
                                     >
                                         {orderStatus === 'loading' 
                                             ? 'Requesting...' 
@@ -472,6 +514,48 @@ const ProductDetails = () => {
                                     {order.type === 'rent' && (
                                         <div style={{ background: 'var(--surface-low)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem' }}>
                                             🗓️ {new Date(order.rentStartDate).toLocaleDateString()} - {new Date(order.rentEndDate).toLocaleDateString()}
+                                        </div>
+                                    )}
+                                    {order.licenseNumber && (
+                                        <div style={{
+                                            padding: '0.75rem 1rem',
+                                            background: order.isLicenseVerified ? '#dcfce7' : '#fef3c7',
+                                            borderRadius: '8px',
+                                            marginBottom: '1rem',
+                                            border: `1.5px solid ${order.isLicenseVerified ? '#86efac' : '#fde68a'}`,
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                                                <div>
+                                                    <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: order.isLicenseVerified ? '#166534' : '#92400e', marginBottom: '2px' }}>
+                                                        🪪 Driving License
+                                                    </div>
+                                                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: order.isLicenseVerified ? '#166534' : '#78350f', letterSpacing: '0.03em' }}>
+                                                        {order.licenseNumber}
+                                                    </div>
+                                                </div>
+                                                {order.isLicenseVerified ? (
+                                                    <span style={{ padding: '4px 12px', background: '#166534', color: '#fff', borderRadius: '16px', fontSize: '0.75rem', fontWeight: 800 }}>
+                                                        🪪 License Verified ✅
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                const token = localStorage.getItem('token');
+                                                                await axios.put(`http://localhost:5000/api/orders/${order._id}/verify-license`, {}, {
+                                                                    headers: { Authorization: `Bearer ${token}` }
+                                                                });
+                                                                setProductOrders(prev => prev.map(o => o._id === order._id ? { ...o, isLicenseVerified: true } : o));
+                                                            } catch (err) {
+                                                                alert(err.response?.data?.message || 'Failed to verify license.');
+                                                            }
+                                                        }}
+                                                        style={{ padding: '5px 14px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '16px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                                                    >
+                                                        Mark License as Verified
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                     <div style={{ display: 'flex', gap: '10px' }}>

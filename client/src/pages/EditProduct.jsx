@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
+const CATEGORIES = [
+  "Books",
+  "Electronics",
+  "Clothing",
+  "Lifestyle",
+  "Dorm Essentials",
+  "Stationery",
+  "Others",
+  "Transport"
+];
+
 const EditProduct = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -44,7 +55,12 @@ const EditProduct = () => {
     }, [id]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'category' && value === 'Transport') {
+            setFormData({ ...formData, [name]: value, type: 'rent' });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -142,14 +158,18 @@ const EditProduct = () => {
                     </div>
                     <div style={{ flex: 1 }}>
                         <label style={{ display: 'block', marginBottom: '8px', color: '#555', fontWeight: 'bold' }}>Category:</label>
-                        <input 
-                            type="text" 
+                        <select 
                             name="category" 
                             value={formData.category} 
                             onChange={handleChange} 
                             required 
-                            style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px' }}
-                        />
+                            style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', backgroundColor: '#fff' }}
+                        >
+                            <option value="">Select Category</option>
+                            {CATEGORIES.map((cat) => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -159,11 +179,23 @@ const EditProduct = () => {
                         name="type" 
                         value={formData.type} 
                         onChange={handleChange} 
-                        style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', backgroundColor: '#fff' }}
+                        disabled={formData.category === 'Transport'}
+                        style={{ width: '100%', padding: '12px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', backgroundColor: formData.category === 'Transport' ? '#f0f0f0' : '#fff' }}
                     >
-                        <option value="sell">Sell</option>
-                        <option value="rent">Rent</option>
+                        {formData.category === 'Transport' ? (
+                            <option value="rent">Rent</option>
+                        ) : (
+                            <>
+                                <option value="sell">Sell</option>
+                                <option value="rent">Rent</option>
+                            </>
+                        )}
                     </select>
+                    {formData.category === 'Transport' && (
+                        <div style={{ background: '#fff3cd', color: '#856404', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '0.85rem' }}>
+                            ⚠️ Transport items can only be listed for rent.
+                        </div>
+                    )}
                 </div>
 
                 {formData.type === 'rent' && (

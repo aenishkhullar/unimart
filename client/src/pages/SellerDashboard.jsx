@@ -8,6 +8,7 @@ const SellerDashboard = () => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
+  const [verifyingOrderId, setVerifyingOrderId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,15 +79,55 @@ const SellerDashboard = () => {
     }
 
     if (status === 'confirmed') {
+      const isTransport = order.product?.category === 'Transport';
+      const isLicenseUnverified = isTransport && order.licenseNumber && !order.isLicenseVerified;
+
       return (
         <div className="action-buttons">
-          <button onClick={() => updateOrderStatus(order._id, 'completed')} className="btn-action btn-complete">Complete ✅</button>
+          <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+            <button 
+              onClick={() => !isLicenseUnverified && updateOrderStatus(order._id, 'completed')} 
+              className={`btn-action btn-complete ${isLicenseUnverified ? 'disabled' : ''}`}
+              disabled={isLicenseUnverified}
+              style={{
+                opacity: isLicenseUnverified ? 0.5 : 1,
+                cursor: isLicenseUnverified ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Complete ✅
+            </button>
+            {isLicenseUnverified && (
+              <span style={{ fontSize: '0.7rem', color: 'var(--error)', fontWeight: 700, textAlign: 'right', maxWidth: '150px' }}>
+                Verify license before completion
+              </span>
+            )}
+          </div>
           <button onClick={() => updateOrderStatus(order._id, 'cancelled')} className="btn-action btn-cancel">Cancel</button>
         </div>
       );
     }
 
     return null; // No actions for completed/cancelled
+  };
+
+  const handleVerifyLicense = async (orderId) => {
+    const token = localStorage.getItem('token');
+    setVerifyingOrderId(orderId);
+    try {
+      await axios.put(`http://localhost:5000/api/orders/${orderId}/verify-license`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Update local state
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId ? { ...order, isLicenseVerified: true } : order
+        )
+      );
+    } catch (err) {
+      alert(`Error verifying license: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setVerifyingOrderId(null);
+    }
   };
 
   if (loading) {
@@ -186,6 +227,65 @@ const SellerDashboard = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* License Verification Section for Transport */}
+                  {order?.licenseNumber && (
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.75rem 1rem',
+                      background: order?.isLicenseVerified ? '#dcfce7' : '#fef3c7',
+                      borderRadius: '10px',
+                      border: `1.5px solid ${order?.isLicenseVerified ? '#86efac' : '#fde68a'}`,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: order?.isLicenseVerified ? '#166534' : '#92400e', marginBottom: '3px' }}>
+                            🪪 Driving License
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', fontWeight: 800, color: order?.isLicenseVerified ? '#166534' : '#78350f', letterSpacing: '0.03em' }}>
+                            {order.licenseNumber}
+                          </div>
+                        </div>
+                        <div>
+                          {order?.isLicenseVerified ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '6px 14px',
+                              background: '#166534',
+                              color: '#fff',
+                              borderRadius: '20px',
+                              fontSize: '0.78rem',
+                              fontWeight: 800,
+                              letterSpacing: '0.03em'
+                            }}>
+                                🪪 License Verified ✅
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleVerifyLicense(order._id)}
+                              disabled={verifyingOrderId === order._id}
+                              style={{
+                                padding: '6px 16px',
+                                background: 'var(--primary)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '20px',
+                                fontSize: '0.8rem',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                opacity: verifyingOrderId === order._id ? 0.6 : 1,
+                              }}
+                            >
+                              {verifyingOrderId === order._id ? 'Verifying...' : 'Mark License as Verified'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="order-actions-side">

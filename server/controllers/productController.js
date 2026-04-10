@@ -31,6 +31,14 @@ export const createProduct = async (req, res) => {
       });
     }
 
+    // Block sell type for Transport category
+    if (category === 'Transport' && type === 'sell') {
+      return res.status(400).json({
+        success: false,
+        message: 'Transport items can only be listed for rent, not for sale.',
+      });
+    }
+
     // Rent-specific validation
     if (type === 'rent') {
       if (!rentPrice) {

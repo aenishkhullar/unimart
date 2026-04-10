@@ -5,13 +5,13 @@ import './CreateProduct.css';
 
 const CATEGORIES = [
   "Books",
-  "Dorm Essentials",
   "Electronics",
-  "Stationery",
   "Clothing",
   "Lifestyle",
-  "Transport",
-  "Others"
+  "Dorm Essentials",
+  "Stationery",
+  "Others",
+  "Transport"
 ];
 
 const TYPE_MAP = {
@@ -187,7 +187,13 @@ const CreateProduct = () => {
                             <select 
                                 className="form-select"
                                 value={category}
-                                onChange={(e) => setCategory(e.target.value)}
+                                onChange={(e) => {
+                                    const newCategory = e.target.value;
+                                    setCategory(newCategory);
+                                    if (newCategory === 'Transport') {
+                                        setType('Rent');
+                                    }
+                                }}
                             >
                                 <option value="">Select Category</option>
                                 {CATEGORIES.map((cat) => (
@@ -222,10 +228,22 @@ const CreateProduct = () => {
                             className="form-select"
                             value={type}
                             onChange={(e) => setType(e.target.value)}
+                            disabled={category === 'Transport'}
                         >
-                            <option value="Sell">Sell (One-time purchase)</option>
-                            <option value="Rent">Rent (Timed borrowing)</option>
+                            {category === 'Transport' ? (
+                                <option value="Rent">Rent (Timed borrowing)</option>
+                            ) : (
+                                <>
+                                    <option value="Sell">Sell (One-time purchase)</option>
+                                    <option value="Rent">Rent (Timed borrowing)</option>
+                                </>
+                            )}
                         </select>
+                        {category === 'Transport' && (
+                            <div style={{background: '#fff3cd', color: '#856404', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                <span>⚠️</span> Transport items can only be listed for rent.
+                            </div>
+                        )}
                     </div>
 
                     {/* Rent-specific fields */}

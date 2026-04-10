@@ -39,6 +39,14 @@ const orderSchema = new mongoose.Schema({
   rentEndDate: {
     type: Date,
   },
+  licenseNumber: {
+    type: String,
+    default: null,
+  },
+  isLicenseVerified: {
+    type: Boolean,
+    default: false,
+  },
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'completed', 'cancelled'],
