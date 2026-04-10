@@ -4,9 +4,18 @@ import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('users');
-  const [data, setData] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState({ message: '', type: '' });
+  
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast({ message: '', type: '' }), 3000);
+  };
   
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,7 +32,10 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    fetchData(activeTab);
+    if (activeTab === 'users') fetchUsers();
+    if (activeTab === 'products') fetchProducts();
+    if (activeTab === 'orders') fetchOrders();
+    if (activeTab === 'reports') fetchReports();
     // Reset filters when switching tabs
     resetFilters();
   }, [activeTab]);
@@ -36,22 +48,50 @@ const AdminDashboard = () => {
     setTargetTypeFilter('');
   };
 
-  const fetchData = async (tab) => {
+  const fetchUsers = async () => {
     setLoading(true);
     setError('');
-    setData([]);
-    let url = '';
-    
-    if (tab === 'users') url = 'http://localhost:5000/api/admin/users';
-    else if (tab === 'products') url = 'http://localhost:5000/api/admin/products';
-    else if (tab === 'orders') url = 'http://localhost:5000/api/admin/orders';
-    else if (tab === 'reports') url = 'http://localhost:5000/api/admin/reports';
-
     try {
-      const res = await axios.get(url, config);
-      setData(res.data);
+      const res = await axios.get('http://localhost:5000/api/admin/users', config);
+      setUsers(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || `Failed to fetch ${tab}`);
+      setError(err.response?.data?.message || 'Failed to fetch users');
+    }
+    setLoading(false);
+  };
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.get('http://localhost:5000/api/admin/products', config);
+      setProducts(res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch products');
+    }
+    setLoading(false);
+  };
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.get('http://localhost:5000/api/admin/orders', config);
+      setOrders(res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch orders');
+    }
+    setLoading(false);
+  };
+
+  const fetchReports = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.get('http://localhost:5000/api/admin/reports', config);
+      setReports(res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch reports');
     }
     setLoading(false);
   };
@@ -59,38 +99,44 @@ const AdminDashboard = () => {
   // Derived filtered data
   const getFilteredData = () => {
     if (activeTab === 'users') {
-      return data.filter(user => 
+      return users.filter(user => 
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user._id.toLowerCase().includes(searchTerm.toLowerCase())
       );
     } else if (activeTab === 'products') {
-      return data.filter(product => {
+      return products.filter(product => {
         const matchesCategory = categoryFilter ? product.category === categoryFilter : true;
         const matchesType = typeFilter ? product.type === typeFilter : true;
-        return matchesCategory && matchesType;
+        const matchesSearch = searchTerm ? (
+          product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product._id.toLowerCase().includes(searchTerm.toLowerCase())
+        ) : true;
+        return matchesCategory && matchesType && matchesSearch;
       });
     } else if (activeTab === 'orders') {
-      return data.filter(order => 
+      return orders.filter(order => 
         statusFilter ? order.status === statusFilter : true
       );
     } else if (activeTab === 'reports') {
-      return data.filter(report => 
+      return reports.filter(report => 
         targetTypeFilter ? report.targetType === targetTypeFilter : true
       );
     }
-    return data;
+    return [];
   };
 
   const filteredData = getFilteredData();
-  const uniqueCategories = activeTab === 'products' ? [...new Set(data.map(p => p.category))] : [];
+  const uniqueCategories = activeTab === 'products' ? [...new Set(products.map(p => p.category))] : [];
 
   const handleBlockUser = async (id, isBlocked) => {
     if (!window.confirm(`Are you sure you want to ${isBlocked ? 'unblock' : 'block'} this user?`)) return;
     try {
       await axios.patch(`http://localhost:5000/api/admin/users/${id}/block`, {}, config);
-      fetchData('users');
+      showToast(`User ${isBlocked ? 'unblocked' : 'blocked'} successfully`);
+      fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update user status');
+      showToast(err.response?.data?.message || 'Failed to update user status', 'error');
     }
   };
 
@@ -98,9 +144,10 @@ const AdminDashboard = () => {
     if (!window.confirm('Are you sure you want to completely delete this user? This cannot be undone.')) return;
     try {
       await axios.delete(`http://localhost:5000/api/admin/users/${id}`, config);
-      fetchData('users');
+      showToast('User deleted successfully');
+      fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete user');
+      showToast(err.response?.data?.message || 'Failed to delete user', 'error');
     }
   };
 
@@ -108,9 +155,21 @@ const AdminDashboard = () => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       await axios.delete(`http://localhost:5000/api/admin/products/${id}`, config);
-      fetchData('products');
+      showToast('Product deleted successfully');
+      fetchProducts();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete product');
+      showToast(err.response?.data?.message || 'Failed to delete product', 'error');
+    }
+  };
+
+  const handleResolveReport = async (id) => {
+    if (!window.confirm('Mark this report as resolved?')) return;
+    try {
+      await axios.patch(`http://localhost:5000/api/admin/reports/${id}/resolve`, {}, config);
+      showToast('Report marked as resolved');
+      fetchReports();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to resolve report', 'error');
     }
   };
 
@@ -181,6 +240,14 @@ const AdminDashboard = () => {
   const renderProducts = () => (
     <div className="admin-table-container">
       <div className="filter-bar">
+        <input 
+          type="text" 
+          placeholder="Search by ID or Title..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="filter-input"
+          id="product-search-input"
+        />
         <select 
           value={categoryFilter} 
           onChange={(e) => setCategoryFilter(e.target.value)}
@@ -309,6 +376,8 @@ const AdminDashboard = () => {
             <th>Target ID</th>
             <th>Reason</th>
             <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -320,6 +389,22 @@ const AdminDashboard = () => {
               <td>{report.targetId}</td>
               <td>{report.reason}</td>
               <td>{new Date(report.createdAt).toLocaleDateString()}</td>
+              <td>
+                <span className={`status-badge ${report.status === 'resolved' ? 'resolved' : 'pending'}`}>
+                  {report.status || 'pending'}
+                </span>
+              </td>
+              <td>
+                {(report.status === 'pending' || !report.status) && (
+                  <button 
+                    className="admin-btn resolve"
+                    id={`resolve-btn-${report._id}`}
+                    onClick={() => handleResolveReport(report._id)}
+                  >
+                    Resolve
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
           {filteredData.length === 0 && !loading && <tr><td colSpan="6">No reports found.</td></tr>}
@@ -330,6 +415,11 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-container">
+      {toast.message && (
+        <div className={`toast-notification ${toast.type}`}>
+          {toast.message}
+        </div>
+      )}
       <div className="admin-header">
         <h1>Admin Control Panel</h1>
         <div className="admin-nav">
@@ -363,9 +453,19 @@ const AdminDashboard = () => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="admin-section">
-        <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Management</h2>
-        {loading ? (
-          <div className="loading-container">Loading data...</div>
+        <div className="section-header-row">
+          <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Management</h2>
+          {loading && <span className="loading-indicator">Refreshing...</span>}
+        </div>
+        
+        {activeTab === 'users' && users.length === 0 && loading ? (
+          <div className="loading-container">Loading Users...</div>
+        ) : activeTab === 'products' && products.length === 0 && loading ? (
+          <div className="loading-container">Loading Products...</div>
+        ) : activeTab === 'orders' && orders.length === 0 && loading ? (
+          <div className="loading-container">Loading Orders...</div>
+        ) : activeTab === 'reports' && reports.length === 0 && loading ? (
+          <div className="loading-container">Loading Reports...</div>
         ) : (
           <>
             {activeTab === 'users' && renderUsers()}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useWishlist } from '../context/WishlistContext';
+import ReportModal from '../components/ReportModal';
 import './ProductDetails.css';
 
 const ProductDetails = () => {
@@ -32,6 +33,9 @@ const ProductDetails = () => {
     const [reviewLoading, setReviewLoading] = useState(false);
     const [avgRating, setAvgRating] = useState(0);
     const [reviewCount, setReviewCount] = useState(0);
+
+    // Report Modal State
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     const today = new Date().toISOString().split('T')[0];
     const userStr = localStorage.getItem('user');
@@ -261,6 +265,15 @@ const ProductDetails = () => {
                                     <>⭐ No reviews yet</>
                                 )}
                             </span>
+                            {!isOwner && (
+                                <button 
+                                    className="report-trigger-btn" 
+                                    onClick={() => setIsReportModalOpen(true)}
+                                    title="Report this product"
+                                >
+                                    🚩 Report
+                                </button>
+                            )}
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -582,6 +595,14 @@ const ProductDetails = () => {
                     </div>
                 )}
             </div>
+
+            <ReportModal 
+                isOpen={isReportModalOpen} 
+                onClose={() => setIsReportModalOpen(false)} 
+                targetType="product" 
+                targetId={product?._id} 
+                targetName={product?.title} 
+            />
         </div>
     );
 };

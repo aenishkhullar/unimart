@@ -7,7 +7,8 @@ import {
   getAdminProducts,
   deleteProductAdmin,
   getAdminOrders,
-  getAdminReports
+  getAdminReports,
+  resolveReport
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -25,5 +26,6 @@ router.route('/products/:id').delete(deleteProductAdmin);
 router.route('/orders').get(getAdminOrders);
 
 router.route('/reports').get(getAdminReports);
+router.route('/reports/:id/resolve').patch(resolveReport);
 
 export default router;

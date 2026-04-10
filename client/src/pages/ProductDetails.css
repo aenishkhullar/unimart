@@ -321,6 +321,35 @@
 
 .review-form-panel h3 {
   font-family: var(--font-headline);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.report-trigger-btn {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  height: fit-content;
+}
+
+.report-trigger-btn:hover {
+  background: #fff5f5;
+  color: #e94560;
+  border-color: #fababf;
+}
+
+.review-form-panel h3 {
+  font-family: var(--font-headline);
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 0.5rem;

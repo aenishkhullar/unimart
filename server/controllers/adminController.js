@@ -103,3 +103,19 @@ export const getAdminReports = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+// @desc    Resolve report
+// @route   PATCH /api/admin/reports/:id/resolve
+// @access  Private/Admin
+export const resolveReport = async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    if (!report) {
+      return res.status(404).json({ success: false, message: 'Report not found' });
+    }
+    report.status = 'resolved';
+    await report.save();
+    res.json({ success: true, message: 'Report marked as resolved', report });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

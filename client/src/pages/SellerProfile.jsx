@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
+import ReportModal from '../components/ReportModal';
 import './SellerProfile.css';
 
 const SellerProfile = () => {
@@ -9,6 +10,7 @@ const SellerProfile = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchSellerData = async () => {
@@ -76,6 +78,13 @@ const SellerProfile = () => {
                             <span className="stat-value">100%</span>
                             <span className="stat-label">Response</span>
                         </div>
+                        <button 
+                            className="report-user-btn" 
+                            onClick={() => setIsReportModalOpen(true)}
+                            title="Report this user"
+                        >
+                            🚩 Report User
+                        </button>
                     </div>
                 </div>
             </header>
@@ -137,6 +146,14 @@ const SellerProfile = () => {
                     )}
                 </div>
             </section>
+
+            <ReportModal 
+                isOpen={isReportModalOpen} 
+                onClose={() => setIsReportModalOpen(false)} 
+                targetType="user" 
+                targetId={seller?._id} 
+                targetName={seller?.name} 
+            />
         </div>
     );
 };

@@ -103,6 +103,31 @@
     font-weight: 600;
 }
 
+.report-user-btn {
+    background: transparent;
+    color: var(--on-surface-variant);
+    border: 1px solid var(--surface-highest);
+    border-radius: var(--radius-full);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+}
+
+.report-user-btn:hover {
+    background: #fff5f5;
+    color: #e94560;
+    border-color: #fababf;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(233, 69, 96, 0.1);
+}
+
 /* ──────────────────────────────────────────────────────────────────────────
    ABOUT SECTION
    ────────────────────────────────────────────────────────────────────────── */
