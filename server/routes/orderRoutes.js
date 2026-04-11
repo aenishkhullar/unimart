@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrder, getMyOrders, updateOrderStatus, getProductOrders, getSellerOrders, verifyLicense, buyerConfirmOrder } from '../controllers/orderController.js';
+import { createOrder, getMyOrders, updateOrderStatus, getProductOrders, getSellerOrders, verifyLicense, buyerConfirmOrder, getOrderReceipt } from '../controllers/orderController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -12,6 +12,9 @@ router.get('/my', protect, getMyOrders);
 
 // GET  /api/orders/seller-orders → get orders for products owned by seller (protected)
 router.get('/seller-orders', protect, getSellerOrders);
+
+// GET /api/orders/:id/receipt → get order receipt (protected)
+router.get('/:id/receipt', protect, getOrderReceipt);
 
 // PUT /api/orders/:id/status → update order status (protected, seller only)
 router.put('/:id/status', protect, updateOrderStatus);

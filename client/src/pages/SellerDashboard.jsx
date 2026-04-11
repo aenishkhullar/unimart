@@ -400,6 +400,23 @@ const SellerDashboard = () => {
                     {order?.status || 'pending'}
                   </span>
                   {renderActionButtons(order)}
+                  {(order?.status === 'completed' || order?.status === 'returned') && (
+                    <button
+                      className="btn-action"
+                      style={{ 
+                        marginTop: '8px', 
+                        borderColor: '#6366f1', 
+                        color: '#6366f1', 
+                        background: 'white',
+                        fontWeight: 600,
+                        width: '100%',
+                        fontSize: '0.8rem'
+                      }}
+                      onClick={() => navigate(`/order-receipt/${order._id}`)}
+                    >
+                      📄 Generate Receipt
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

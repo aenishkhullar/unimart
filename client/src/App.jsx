@@ -15,6 +15,7 @@ import Messages from "./pages/Messages";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
+import OrderReceipt from "./pages/OrderReceipt";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -91,6 +92,14 @@ function App() {
             <AdminRoute>
               <AdminDashboard />
             </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/order-receipt/:id" 
+          element={
+            <ProtectedRoute>
+              <OrderReceipt />
+            </ProtectedRoute>
           } 
         />
       </Routes>

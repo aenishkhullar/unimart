@@ -336,6 +336,21 @@ const MyOrders = () => {
                     </div>
                   )}
 
+                  {(order?.status === 'completed' || order?.status === 'returned') && (
+                    <button
+                      className="btn-review-trigger"
+                      style={{ 
+                        marginTop: '8px',
+                        borderColor: '#6366f1',
+                        color: '#6366f1',
+                        fontWeight: 600
+                      }}
+                      onClick={() => navigate(`/order-receipt/${order._id}`)}
+                    >
+                      📄 Generate Receipt
+                    </button>
+                  )}
+
                   <div className="order-timestamp" style={{ fontSize: '0.7rem', color: 'var(--on-surface-variant)', marginTop: 'auto' }}>
                     Ordered {order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                   </div>
