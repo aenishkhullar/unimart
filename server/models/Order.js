@@ -60,6 +60,13 @@ const orderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  buyerConfirmed: {
+    type: Boolean,
+    default: false,
+  },
+  buyerConfirmedAt: {
+    type: Date,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

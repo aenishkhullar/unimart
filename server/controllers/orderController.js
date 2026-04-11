@@ -367,7 +367,7 @@ export const updateOrderStatus = async (req, res) => {
     if (status === 'confirmed') {
       notificationText = `Your order for ${order.product.title} has been confirmed.`;
     } else if (status === 'completed') {
-      notificationText = `Your order for ${order.product.title} has been completed.`;
+      notificationText = `Your order for ${order.product.title} has been completed. Please confirm if you received your item.`;
     } else if (status === 'returned') {
       notificationText = `Your rental of ${order.product.title} has been marked as returned.`;
     } else if (status === 'cancelled') {
@@ -538,6 +538,74 @@ export const verifyLicense = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error while verifying license',
+    });
+  }
+};
+
+// @desc    Buyer confirms order delivery
+// @route   PATCH /api/orders/:id/buyer-confirm
+// @access  Private (Buyer only)
+export const buyerConfirmOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await Order.findById(id).populate(orderPopulate);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    // Only the buyer of this order can confirm
+    if (order.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to confirm this order',
+      });
+    }
+
+    // Only completed orders can be confirmed
+    if (order.status !== 'completed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only completed orders can be confirmed',
+      });
+    }
+
+    // Prevent double confirmation
+    if (order.buyerConfirmed) {
+      return res.status(400).json({
+        success: false,
+        message: 'Already confirmed',
+      });
+    }
+
+    order.buyerConfirmed = true;
+    order.buyerConfirmedAt = new Date();
+    await order.save();
+
+    // Notify the seller that buyer confirmed receipt
+    const product = await Product.findById(order.product._id);
+    if (product) {
+      await createNotification(
+        product.user,
+        `Buyer has confirmed receipt of ${product.title}.`,
+        'order',
+        '/seller-dashboard'
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Order delivery confirmed',
+      order,
+    });
+  } catch (error) {
+    console.error('Error in buyerConfirmOrder:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while confirming order',
     });
   }
 };

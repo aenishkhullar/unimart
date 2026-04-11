@@ -14,6 +14,7 @@ const MyOrders = () => {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState(null);
   const [editingOrderId, setEditingOrderId] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -148,6 +149,26 @@ const MyOrders = () => {
     }
   };
 
+  const handleBuyerConfirm = async (orderId) => {
+    setConfirmLoading(orderId);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(`http://localhost:5000/api/orders/${orderId}/buyer-confirm`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Update UI instantly
+      setOrders(prev => prev.map(o =>
+        o._id === orderId
+          ? { ...o, buyerConfirmed: true, buyerConfirmedAt: new Date().toISOString() }
+          : o
+      ));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to confirm delivery.");
+    } finally {
+      setConfirmLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -244,6 +265,43 @@ const MyOrders = () => {
                   <span className={`status-badge status-${order?.status || 'pending'}`}>
                     {order?.status || 'pending'}
                   </span>
+
+                  {/* Buyer Confirmation Button */}
+                  {order?.status === 'completed' && !order?.buyerConfirmed && (
+                    <button
+                      className="btn-review-trigger"
+                      style={{
+                        background: 'var(--primary)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 600,
+                        cursor: confirmLoading === order._id ? 'wait' : 'pointer',
+                        opacity: confirmLoading === order._id ? 0.7 : 1,
+                      }}
+                      onClick={() => handleBuyerConfirm(order._id)}
+                      disabled={confirmLoading === order._id}
+                    >
+                      {confirmLoading === order._id ? 'Confirming...' : '📦 Confirm Received'}
+                    </button>
+                  )}
+
+                  {/* Confirmed State */}
+                  {order?.buyerConfirmed && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                      <span style={{
+                        color: '#16a34a',
+                        fontWeight: 600,
+                        fontSize: '0.82rem',
+                      }}>
+                        ✔ Received Confirmed
+                      </span>
+                      {order?.buyerConfirmedAt && (
+                        <span style={{ fontSize: '0.68rem', color: 'var(--on-surface-variant)' }}>
+                          Confirmed on {new Date(order.buyerConfirmedAt).toLocaleDateString('en-GB')}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   
                   {order?.status === 'completed' && !order?.isReviewed && (
                     <button 

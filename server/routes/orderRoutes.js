@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrder, getMyOrders, updateOrderStatus, getProductOrders, getSellerOrders, verifyLicense } from '../controllers/orderController.js';
+import { createOrder, getMyOrders, updateOrderStatus, getProductOrders, getSellerOrders, verifyLicense, buyerConfirmOrder } from '../controllers/orderController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -18,6 +18,9 @@ router.put('/:id/status', protect, updateOrderStatus);
 
 // PUT /api/orders/:id/verify-license → seller verifies buyer's license (protected)
 router.put('/:id/verify-license', protect, verifyLicense);
+
+// PATCH /api/orders/:id/buyer-confirm → buyer confirms order delivery (protected)
+router.patch('/:id/buyer-confirm', protect, buyerConfirmOrder);
 
 // GET /api/orders/product/:productId → get orders for a specific product (protected, seller only)
 router.get('/product/:productId', protect, getProductOrders);
