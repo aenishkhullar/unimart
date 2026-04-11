@@ -180,6 +180,20 @@ const SellerDashboard = () => {
     setRestockError('');
   };
 
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:5000/api/products/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setProducts(prev => prev.filter(p => p._id !== productId));
+      } catch (err) {
+        alert(err.response?.data?.message || 'Failed to delete product.');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -349,12 +363,12 @@ const SellerDashboard = () => {
           </div>
         )}
 
-        <h2 className="section-title" style={{ marginTop: '3rem', marginBottom: '1.5rem', fontSize: '1.25rem' }}>My Listings</h2>
+        <h2 className="section-title" style={{ marginTop: '3rem', marginBottom: '1.5rem', fontSize: '1.25rem' }}>My Products</h2>
 
         {products.length === 0 ? (
           <div className="empty-state">
-            <h2 className="empty-text">No listings yet</h2>
-            <p className="empty-sub">Create a listing to get started.</p>
+            <h2 className="empty-text">No products yet</h2>
+            <p className="empty-sub">Create a product to get started.</p>
           </div>
         ) : (
           <div className="orders-list">
@@ -378,21 +392,32 @@ const SellerDashboard = () => {
                   <h3 className="order-title">{product.title}</h3>
                   <div className="order-info-row">
                     <div className="order-info-item">
-                      <span className="info-label">Stock Status</span>
-                      <span className="info-value" style={{ color: product.isSoldOut ? 'var(--error)' : 'inherit', fontWeight: 'bold' }}>
-                        {product.isSoldOut ? 'Sold Out' : `${product.quantity - (product.soldCount || 0)} available`}
+                      <span className="info-label">Price</span>
+                      <span className="info-value">₹{product.price}</span>
+                    </div>
+                    <div className="order-info-item">
+                      <span className="info-label">Status</span>
+                      <span className="info-value" style={{ color: product.isSoldOut ? 'var(--error)' : '#166534', fontWeight: 'bold' }}>
+                        {product.isSoldOut ? 'Sold Out' : 'Active'}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="order-actions-side" style={{ display: 'flex', gap: '10px' }}>
+                <div className="order-actions-side" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   <button 
                     onClick={() => navigate(`/edit-product/${product._id}`)} 
                     className="btn-action"
                     style={{ background: '#f8f9fa', color: '#333', border: '1px solid #ddd' }}
                   >
                     Edit
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteProduct(product._id)} 
+                    className="btn-action"
+                    style={{ background: '#fff5f5', color: '#dc2626', border: '1px solid #f87171' }}
+                  >
+                    Delete
                   </button>
                   {product.isSoldOut && (
                     <button 
