@@ -299,7 +299,9 @@ const ProductDetails = () => {
                             </div>
                         )}
                         <div className="info-header-meta">
-                            {product.isSoldOut && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white'}}>Sold Out</span>}
+                            {product.type === 'sell' && product.isSoldOut && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white'}}>Sold Out</span>}
+                            {product.type === 'rent' && product.stock === 0 && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white'}}>Out of Stock</span>}
+                            {product.type === 'rent' && product.stock > 0 && <span className="badge" style={{background: '#28a745', color: 'white'}}>Available</span>}
                             <span className="badge badge-category">{product.category}</span>
                             <span className="badge badge-type">{product.type.toUpperCase()}</span>
                             <span className="trust-rating">
@@ -462,12 +464,18 @@ const ProductDetails = () => {
                                         </div>
                                     )}
 
+                                    {product.type === 'rent' && (
+                                        <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>
+                                            Available Units: {product.availableStock || 0}
+                                        </div>
+                                    )}
+
                                     <button 
                                         className="btn-primary-action"
                                         onClick={handleOrder}
-                                        disabled={product.isSoldOut || orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0) || (product.category === 'Transport' && !licenseNumber.trim())}
+                                        disabled={(product.type === 'sell' && product.isSoldOut) || (product.type === 'rent' && product.stock === 0) || orderStatus === 'loading' || orderStatus === 'success' || (product.type === 'rent' && rentDays === 0) || (product.category === 'Transport' && !licenseNumber.trim())}
                                     >
-                                        {product.isSoldOut 
+                                        {product.type === 'sell' && product.isSoldOut 
                                             ? 'Sold Out'
                                             : orderStatus === 'loading' 
                                             ? 'Requesting...' 

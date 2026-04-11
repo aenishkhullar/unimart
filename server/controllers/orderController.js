@@ -56,12 +56,14 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    if (product.isSoldOut) {
+    if (product.type === 'sell' && product.isSoldOut) {
       return res.status(400).json({
         success: false,
         message: 'Product is sold out',
       });
     }
+
+
 
     // Block "sell" for Transport category
     if (product.category === 'Transport' && product.type === 'sell') {
@@ -134,18 +136,18 @@ export const createOrder = async (req, res) => {
       }
 
       // Check for overlapping bookings: existingS < newE AND newS < existingE
-      const overlappingOrder = await Order.findOne({
+      const overlappingOrdersCount = await Order.countDocuments({
         product: product._id,
         type: 'rent',
-        status: { $ne: 'cancelled' },
+        status: { $in: ['pending', 'confirmed'] },
         rentStartDate: { $lt: end },
         rentEndDate: { $gt: start },
       });
 
-      if (overlappingOrder) {
+      if (overlappingOrdersCount >= product.stock) {
         return res.status(400).json({
           success: false,
-          message: 'Product already rented for selected dates',
+          message: 'Currently unavailable for selected dates',
         });
       }
 
@@ -167,6 +169,7 @@ export const createOrder = async (req, res) => {
       // Pricing logic for Sell
       orderData.totalAmount = product.price;
     }
+
 
     const order = await Order.create(orderData);
 
@@ -253,7 +256,7 @@ export const updateOrderStatus = async (req, res) => {
     const { status } = req.body;
     const { id } = req.params;
 
-    const validStatuses = ['confirmed', 'completed', 'cancelled'];
+    const validStatuses = ['confirmed', 'completed', 'returned', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
@@ -279,12 +282,11 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     // Transition logic:
-    // pending -> confirmed
-    // pending -> cancelled
-    // confirmed -> completed
-    // confirmed -> cancelled
-    // no change from completed or cancelled
-    if (order.status === 'completed' || order.status === 'cancelled') {
+    // pending -> confirmed | cancelled
+    // confirmed -> completed | cancelled
+    // completed -> returned (rent only)
+    // returned / cancelled -> no further changes
+    if (order.status === 'returned' || order.status === 'cancelled') {
         return res.status(400).json({
             success: false,
             message: `Cannot change status from ${order.status}`,
@@ -313,14 +315,44 @@ export const updateOrderStatus = async (req, res) => {
                 message: 'License must be verified before completing order',
             });
         }
+    } else if (order.status === 'completed') {
+        // Only rent orders can go from completed -> returned
+        if (order.type !== 'rent' || status !== 'returned') {
+            return res.status(400).json({
+                success: false,
+                message: 'Completed orders can only be marked as returned (rental items)',
+            });
+        }
     }
 
     order.status = status;
-    await order.save();
 
-    if (status === 'completed') {
-      const prod = await Product.findById(order.product._id);
-      if (prod) {
+    // --- Stock logic with safety flags ---
+    const prod = await Product.findById(order.product._id);
+    if (prod) {
+      // CONFIRMED: reserve stock (decrement availableStock)
+      if (order.type === 'rent' && status === 'confirmed' && !order.stockReserved) {
+        prod.availableStock = Math.max(0, prod.availableStock - 1);
+        order.stockReserved = true;
+        await prod.save();
+      }
+
+      // CANCELLED: restore stock if it was previously reserved
+      if (order.type === 'rent' && status === 'cancelled' && order.stockReserved && !order.stockRestored) {
+        prod.availableStock = Math.min(prod.stock, prod.availableStock + 1);
+        order.stockRestored = true;
+        await prod.save();
+      }
+
+      // RETURNED: restore stock (rent completed -> returned)
+      if (order.type === 'rent' && status === 'returned' && !order.stockRestored) {
+        prod.availableStock = Math.min(prod.stock, prod.availableStock + 1);
+        order.stockRestored = true;
+        await prod.save();
+      }
+
+      // BUY completed: increment sold count
+      if (order.type === 'buy' && status === 'completed') {
         prod.soldCount = (prod.soldCount || 0) + 1;
         if (prod.quantity && prod.soldCount >= prod.quantity) {
           prod.isSoldOut = true;
@@ -329,11 +361,15 @@ export const updateOrderStatus = async (req, res) => {
       }
     }
 
+    await order.save();
+
     let notificationText = '';
     if (status === 'confirmed') {
       notificationText = `Your order for ${order.product.title} has been confirmed.`;
     } else if (status === 'completed') {
       notificationText = `Your order for ${order.product.title} has been completed.`;
+    } else if (status === 'returned') {
+      notificationText = `Your rental of ${order.product.title} has been marked as returned.`;
     } else if (status === 'cancelled') {
       notificationText = `Your order for ${order.product.title} was cancelled.`;
     }
@@ -435,7 +471,7 @@ export const getSellerOrders = async (req, res) => {
 
     let totalEarnings = 0;
     safeOrders.forEach(order => {
-        if (order.status === 'completed') {
+        if (order.status === 'completed' || order.status === 'returned') {
             if (order.type === 'buy' || order.type === 'sell') {
                 totalEarnings += order.price || 0;
             } else if (order.type === 'rent') {

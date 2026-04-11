@@ -49,8 +49,16 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+    enum: ['pending', 'confirmed', 'completed', 'returned', 'cancelled'],
     default: 'pending',
+  },
+  stockReserved: {
+    type: Boolean,
+    default: false,
+  },
+  stockRestored: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,

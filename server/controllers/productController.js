@@ -56,6 +56,7 @@ export const createProduct = async (req, res) => {
       }
     }
 
+    const qty = Number(quantity) || 1;
     const productData = {
       title,
       description,
@@ -64,7 +65,9 @@ export const createProduct = async (req, res) => {
       type,
       user: req.user._id,
       image: image || undefined,
-      quantity: Number(quantity) || 1,
+      quantity: qty,
+      stock: qty,
+      availableStock: qty,
     };
 
     // Attach rent-specific fields only when type is 'rent'
@@ -351,6 +354,8 @@ export const restockProduct = async (req, res) => {
     }
 
     product.quantity = Number(newStock);
+    product.stock = Number(newStock);
+    product.availableStock = Number(newStock);
     product.soldCount = 0;
     product.isSoldOut = false;
 

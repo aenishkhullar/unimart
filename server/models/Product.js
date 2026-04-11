@@ -47,6 +47,15 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Please add a product quantity'],
       min: [1, 'Quantity must be at least 1']
     },
+    stock: {
+      type: Number,
+      default: 0
+    },
+    availableStock: {
+      type: Number,
+      default: 0,
+      min: [0, 'Available stock cannot be less than 0']
+    },
     soldCount: {
       type: Number,
       default: 0

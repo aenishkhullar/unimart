@@ -76,6 +76,37 @@ const SellerDashboard = () => {
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
+      
+      // Update product stock in UI based on rental lifecycle
+      const targetOrder = orders.find(o => o._id === orderId);
+      if (targetOrder && targetOrder.type === 'rent') {
+        if (newStatus === 'confirmed') {
+          // Stock reserved: decrement availableStock
+          setProducts(prev => prev.map(p => {
+            if (p._id === targetOrder.product?._id) {
+              return { ...p, availableStock: Math.max(0, (p.availableStock || 0) - 1) };
+            }
+            return p;
+          }));
+        } else if (newStatus === 'returned') {
+          // Stock restored: increment availableStock
+          setProducts(prev => prev.map(p => {
+            if (p._id === targetOrder.product?._id) {
+              return { ...p, availableStock: Math.min(p.stock || p.quantity, (p.availableStock || 0) + 1) };
+            }
+            return p;
+          }));
+        } else if (newStatus === 'cancelled' && targetOrder.status === 'confirmed') {
+          // Cancelling a confirmed order: restore stock
+          setProducts(prev => prev.map(p => {
+            if (p._id === targetOrder.product?._id) {
+              return { ...p, availableStock: Math.min(p.stock || p.quantity, (p.availableStock || 0) + 1) };
+            }
+            return p;
+          }));
+        }
+      }
+      
       // Re-fetch to ensure consistency if needed, or just rely on optimistic update
       // fetchSellerData(); 
     } catch (err) {
@@ -85,6 +116,7 @@ const SellerDashboard = () => {
 
   const renderActionButtons = (order) => {
     const status = order.status || 'pending';
+    const isRent = order.type === 'rent';
 
     if (status === 'pending') {
       return (
@@ -124,7 +156,18 @@ const SellerDashboard = () => {
       );
     }
 
-    return null; // No actions for completed/cancelled
+    // For completed RENT orders, show the Return button
+    if (status === 'completed' && isRent) {
+      return (
+        <div className="action-buttons">
+          <button onClick={() => updateOrderStatus(order._id, 'returned')} className="btn-action btn-confirm" style={{ background: '#059669', color: '#fff' }}>
+            Return 📥
+          </button>
+        </div>
+      );
+    }
+
+    return null; // No actions for returned/cancelled/completed-buy
   };
 
   const handleVerifyLicense = async (orderId) => {
@@ -207,7 +250,7 @@ const SellerDashboard = () => {
     );
   }
 
-  const activeOrdersCount = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').length;
+  const activeOrdersCount = orders.filter(o => o.status !== 'completed' && o.status !== 'returned' && o.status !== 'cancelled').length;
   const totalCompleted = orders.filter(o => o.status === 'completed').length;
 
   return (
@@ -390,6 +433,22 @@ const SellerDashboard = () => {
                     </span>
                   </div>
                   <h3 className="order-title">{product.title}</h3>
+                  {product.type === 'rent' && (
+                    <div className="order-info-row" style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                      <div className="order-info-item">
+                        <span className="info-label">Total Stock</span>
+                        <span className="info-value">{product.stock || 0}</span>
+                      </div>
+                      <div className="order-info-item">
+                        <span className="info-label">Available</span>
+                        <span className="info-value">{product.availableStock || 0}</span>
+                      </div>
+                      <div className="order-info-item">
+                        <span className="info-label">Active Rentals</span>
+                        <span className="info-value">{(product.stock || 0) - (product.availableStock || 0)}</span>
+                      </div>
+                    </div>
+                  )}
                   <div className="order-info-row">
                     <div className="order-info-item">
                       <span className="info-label">Price</span>
