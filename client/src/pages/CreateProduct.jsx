@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import './CreateProduct.css';
 
@@ -114,7 +115,7 @@ const CreateProduct = () => {
             const res = await axios.post('http://localhost:5000/api/products', payload, config);
 
             if (res.data) {
-                setSuccess('Product listed successfully!');
+                toast.success("Listing created successfully");
                 
                 // 4. Form Reset
                 setTitle("");
@@ -133,7 +134,7 @@ const CreateProduct = () => {
                 }, 1500);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create product listing.');
+            toast.error("Something went wrong");
         } finally {
             setLoading(false);
         }

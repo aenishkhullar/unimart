@@ -15,10 +15,12 @@ import Messages from "./pages/Messages";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <>
+      <Toaster position="top-center" />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />

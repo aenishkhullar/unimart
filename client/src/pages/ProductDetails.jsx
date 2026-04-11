@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 import { useWishlist } from '../context/WishlistContext';
 import ReportModal from '../components/ReportModal';
 import './ProductDetails.css';
@@ -169,10 +170,10 @@ const ProductDetails = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrderStatus('success');
-            setOrderMessage(res.data.message || 'Order created successfully!');
+            toast.success("Order placed successfully");
         } catch (err) {
             setOrderStatus('error');
-            setOrderMessage(err.response?.data?.message || 'Failed to place order.');
+            toast.error("Something went wrong");
         }
     };
 
