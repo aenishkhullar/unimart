@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Please add a password'],
       minlength: [6, 'Password must be at least 6 characters'],
     },
+    collegeName: {
+      type: String,
+      required: [true, 'Please add your college name'],
+    },
+    collegeIdNumber: {
+      type: String,
+      required: [true, 'Please add your college ID number'],
+    },
     role: {
       type: String,
       enum: ['user', 'admin'],
@@ -28,6 +36,10 @@ const userSchema = new mongoose.Schema(
     acceptedTerms: {
       type: Boolean,
       required: [true, 'You must accept Terms & Privacy Policy'],
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
     },
     wishlist: [
       {

@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, getUserProfile, getSellerProfile, toggleWishlist, getWishlist } from '../controllers/userController.js';
+import { registerUser, loginUser, getUserProfile, getSellerProfile, toggleWishlist, getWishlist, verifyOtp, resendOtp } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,6 +8,16 @@ const router = express.Router();
 // @desc    Register user
 // @access  Public
 router.post('/register', registerUser);
+
+// @route   POST /api/users/verify-otp
+// @desc    Verify email OTP
+// @access  Public
+router.post('/verify-otp', verifyOtp);
+
+// @route   POST /api/users/resend-otp
+// @desc    Resend email OTP
+// @access  Public
+router.post('/resend-otp', resendOtp);
 
 // @route   POST /api/users/login
 // @desc    Login user
