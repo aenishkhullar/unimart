@@ -119,3 +119,43 @@ export const resolveReport = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get aggregated admin stats
+// @route   GET /api/admin/stats
+// @access  Private/Admin
+export const getAdminStats = async (req, res) => {
+  try {
+    // Total revenue from completed orders only
+    const revenueResult = await Order.aggregate([
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+    ]);
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
+
+    // Active users (not blocked)
+    const activeUsers = await User.countDocuments({ isBlocked: { $ne: true } });
+
+    // Total products
+    const totalProducts = await Product.countDocuments();
+
+    // Total orders
+    const totalOrders = await Order.countDocuments();
+
+    // Reports
+    const totalReports = await Report.countDocuments();
+    const pendingReports = await Report.countDocuments({ status: 'pending' });
+    const resolvedReports = await Report.countDocuments({ status: 'resolved' });
+
+    res.json({
+      totalRevenue,
+      activeUsers,
+      totalProducts,
+      totalOrders,
+      totalReports,
+      pendingReports,
+      resolvedReports,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

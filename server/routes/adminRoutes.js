@@ -8,7 +8,8 @@ import {
   deleteProductAdmin,
   getAdminOrders,
   getAdminReports,
-  resolveReport
+  resolveReport,
+  getAdminStats
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -27,5 +28,7 @@ router.route('/orders').get(getAdminOrders);
 
 router.route('/reports').get(getAdminReports);
 router.route('/reports/:id/resolve').patch(resolveReport);
+
+router.route('/stats').get(getAdminStats);
 
 export default router;

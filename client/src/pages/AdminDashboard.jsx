@@ -2,12 +2,31 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminDashboard.css';
 
+const STAT_CARDS_CONFIG = [
+  { key: 'totalRevenue', label: 'Total Revenue', icon: 'payments', format: 'currency', accent: 'revenue' },
+  { key: 'activeUsers', label: 'Active Users', icon: 'group', format: 'number', accent: 'users' },
+  { key: 'totalProducts', label: 'Total Products', icon: 'inventory_2', format: 'number', accent: 'products' },
+  { key: 'totalOrders', label: 'Total Orders', icon: 'shopping_cart', format: 'number', accent: 'orders' },
+  { key: 'totalReports', label: 'Total Reports', icon: 'assessment', format: 'number', accent: 'reports' },
+  { key: 'pendingReports', label: 'Pending Reports', icon: 'pending_actions', format: 'number', accent: 'pending' },
+  { key: 'resolvedReports', label: 'Resolved Reports', icon: 'check_circle', format: 'number', accent: 'resolved' },
+];
+
+const formatStatValue = (value, format) => {
+  if (format === 'currency') {
+    return `₹${Number(value).toLocaleString('en-IN')}`;
+  }
+  return Number(value).toLocaleString('en-IN');
+};
+
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [reports, setReports] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState({ message: '', type: '' });
@@ -31,6 +50,11 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch stats on mount
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   useEffect(() => {
     if (activeTab === 'users') fetchUsers();
     if (activeTab === 'products') fetchProducts();
@@ -39,6 +63,17 @@ const AdminDashboard = () => {
     // Reset filters when switching tabs
     resetFilters();
   }, [activeTab]);
+
+  const fetchStats = async () => {
+    setStatsLoading(true);
+    try {
+      const res = await axios.get('http://localhost:5000/api/admin/stats', config);
+      setStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+    setStatsLoading(false);
+  };
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -135,6 +170,7 @@ const AdminDashboard = () => {
       await axios.patch(`http://localhost:5000/api/admin/users/${id}/block`, {}, config);
       showToast(`User ${isBlocked ? 'unblocked' : 'blocked'} successfully`);
       fetchUsers();
+      fetchStats();
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to update user status', 'error');
     }
@@ -146,6 +182,7 @@ const AdminDashboard = () => {
       await axios.delete(`http://localhost:5000/api/admin/users/${id}`, config);
       showToast('User deleted successfully');
       fetchUsers();
+      fetchStats();
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to delete user', 'error');
     }
@@ -157,6 +194,7 @@ const AdminDashboard = () => {
       await axios.delete(`http://localhost:5000/api/admin/products/${id}`, config);
       showToast('Product deleted successfully');
       fetchProducts();
+      fetchStats();
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to delete product', 'error');
     }
@@ -168,10 +206,45 @@ const AdminDashboard = () => {
       await axios.patch(`http://localhost:5000/api/admin/reports/${id}/resolve`, {}, config);
       showToast('Report marked as resolved');
       fetchReports();
+      fetchStats();
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to resolve report', 'error');
     }
   };
+
+  const renderStats = () => (
+    <div className="stats-section" id="admin-stats-section">
+      <div className="stats-header">
+        <div className="stats-header-text">
+          <span className="stats-overline">OVERVIEW</span>
+          <h2 className="stats-title">Marketplace Vitals</h2>
+        </div>
+        <button className="stats-refresh-btn" onClick={fetchStats} disabled={statsLoading} id="stats-refresh-btn">
+          <span className="material-icons">{statsLoading ? 'sync' : 'refresh'}</span>
+          {statsLoading ? 'Syncing...' : 'Refresh'}
+        </button>
+      </div>
+      <div className="stats-grid">
+        {STAT_CARDS_CONFIG.map((card) => (
+          <div className={`stat-card stat-card--${card.accent}`} key={card.key} id={`stat-card-${card.key}`}>
+            <div className="stat-card__icon-wrap">
+              <span className="material-icons stat-card__icon">{card.icon}</span>
+            </div>
+            <div className="stat-card__content">
+              <span className="stat-card__label">{card.label}</span>
+              <span className="stat-card__value">
+                {statsLoading ? (
+                  <span className="stat-card__skeleton" />
+                ) : (
+                  formatStatValue(stats?.[card.key] ?? 0, card.format)
+                )}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   const renderUsers = () => (
     <div className="admin-table-container">
@@ -415,6 +488,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-container">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       {toast.message && (
         <div className={`toast-notification ${toast.type}`}>
           {toast.message}
@@ -447,34 +522,44 @@ const AdminDashboard = () => {
           >
             Reports
           </button>
+          <button 
+            className={activeTab === 'stats' ? 'active' : ''} 
+            onClick={() => setActiveTab('stats')}
+          >
+            Stats
+          </button>
         </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      <div className="admin-section">
-        <div className="section-header-row">
-          <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Management</h2>
-          {loading && <span className="loading-indicator">Refreshing...</span>}
+      {activeTab === 'stats' ? (
+        renderStats()
+      ) : (
+        <div className="admin-section">
+          <div className="section-header-row">
+            <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Management</h2>
+            {loading && <span className="loading-indicator">Refreshing...</span>}
+          </div>
+          
+          {activeTab === 'users' && users.length === 0 && loading ? (
+            <div className="loading-container">Loading Users...</div>
+          ) : activeTab === 'products' && products.length === 0 && loading ? (
+            <div className="loading-container">Loading Products...</div>
+          ) : activeTab === 'orders' && orders.length === 0 && loading ? (
+            <div className="loading-container">Loading Orders...</div>
+          ) : activeTab === 'reports' && reports.length === 0 && loading ? (
+            <div className="loading-container">Loading Reports...</div>
+          ) : (
+            <>
+              {activeTab === 'users' && renderUsers()}
+              {activeTab === 'products' && renderProducts()}
+              {activeTab === 'orders' && renderOrders()}
+              {activeTab === 'reports' && renderReports()}
+            </>
+          )}
         </div>
-        
-        {activeTab === 'users' && users.length === 0 && loading ? (
-          <div className="loading-container">Loading Users...</div>
-        ) : activeTab === 'products' && products.length === 0 && loading ? (
-          <div className="loading-container">Loading Products...</div>
-        ) : activeTab === 'orders' && orders.length === 0 && loading ? (
-          <div className="loading-container">Loading Orders...</div>
-        ) : activeTab === 'reports' && reports.length === 0 && loading ? (
-          <div className="loading-container">Loading Reports...</div>
-        ) : (
-          <>
-            {activeTab === 'users' && renderUsers()}
-            {activeTab === 'products' && renderProducts()}
-            {activeTab === 'orders' && renderOrders()}
-            {activeTab === 'reports' && renderReports()}
-          </>
-        )}
-      </div>
+      )}
     </div>
   );
 };
