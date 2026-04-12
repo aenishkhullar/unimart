@@ -265,6 +265,66 @@ h1, h2, h3, h4, h5, p { margin: 0; }
   opacity: 0.9;
   transform: translateY(-1px);
 }
+
+.nav-cta-list-item {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--primary);
+  border: none;
+  padding: 0.4rem 1.1rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.nav-cta-list-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.nav-cta-list-item:active {
+  transform: translateY(1px);
+}
+
+.nav-cta-list-item .plus-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* Shimmer effect at 135 degrees */
+.nav-cta-list-item::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translate(-100%, -100%);
+  transition: none;
+}
+
+.nav-cta-list-item:hover::after {
+  transform: translate(50%, 50%);
+  transition: transform 0.6s ease-in-out;
+}
+
 .nav-logout-btn {
   font-family: var(--font-body);
   font-size: 0.875rem;
@@ -1000,7 +1060,11 @@ h1, h2, h3, h4, h5, p { margin: 0; }
    ══════════════════════════════════════════════ */
 .testimonial-section {
   padding: 5rem 2rem;
-  background: var(--surface);
+  background: var(--primary); /* Black background */
+  color: #ffffff;
+}
+.testimonial-section .section-title {
+  color: #ffffff;
 }
 .testimonial-inner {
   max-width: 1280px;
@@ -1016,10 +1080,11 @@ h1, h2, h3, h4, h5, p { margin: 0; }
   gap: 2rem;
 }
 .testimonial-card {
-  background: #f8f9fb;
+  background: #111111; /* Dark card background */
+  border: 1px solid #2a2a2a;
   border-radius: 16px;
   padding: 2.5rem 2rem;
-  box-shadow: var(--shadow-ambient);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Ambient shadow for dark mode */
   transition: var(--transition);
   display: flex;
   flex-direction: column;
@@ -1037,7 +1102,7 @@ h1, h2, h3, h4, h5, p { margin: 0; }
   font-family: var(--font-body);
   font-size: 1.05rem;
   line-height: 1.6;
-  color: var(--on-surface);
+  color: #e2e2e2; /* High contrast text */
   margin-bottom: 2rem;
   flex-grow: 1;
 }
@@ -1068,12 +1133,12 @@ h1, h2, h3, h4, h5, p { margin: 0; }
   font-family: var(--font-headline);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--on-surface);
+  color: #ffffff;
 }
 .testimonial-role {
   font-family: var(--font-body);
   font-size: 0.8rem;
-  color: var(--on-surface-variant);
+  color: #aaaaaa;
   margin-top: 0.2rem;
 }
 

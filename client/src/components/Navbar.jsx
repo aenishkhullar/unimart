@@ -104,8 +104,8 @@ const Navbar = () => {
           <Link to="/" id="nav-home-link" className="nav-link">Home</Link>
           <Link to="/browse" id="nav-browse-link" className="nav-link">Browse</Link>
           {token && (
-            <Link to="/create-product" id="nav-list-link" className="nav-link">
-              List Item
+            <Link to="/create-product" id="nav-list-link" className="nav-cta-list-item">
+              <span className="plus-icon">+</span> List Item
             </Link>
           )}
         </div>

@@ -298,32 +298,8 @@ const ProductDetails = () => {
                                 <span>⚠️</span> Valid driving license required for renting this vehicle.
                             </div>
                         )}
-                        <div className="info-header-meta">
-                            {product.type === 'sell' && product.isSoldOut && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white'}}>Sold Out</span>}
-                            {product.type === 'rent' && product.stock === 0 && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white'}}>Out of Stock</span>}
-                            {product.type === 'rent' && product.stock > 0 && <span className="badge" style={{background: '#28a745', color: 'white'}}>Available</span>}
-                            <span className="badge badge-category">{product.category}</span>
-                            <span className="badge badge-type">{product.type.toUpperCase()}</span>
-                            <span className="trust-rating">
-                                {reviewCount > 0 ? (
-                                    <>⭐ {(avgRating || 0).toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</>
-                                ) : (
-                                    <>⭐ No reviews yet</>
-                                )}
-                            </span>
-                            {!isOwner && (
-                                <button 
-                                    className="report-trigger-btn" 
-                                    onClick={() => setIsReportModalOpen(true)}
-                                    title="Report this product"
-                                >
-                                    🚩 Report
-                                </button>
-                            )}
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <h1 className="product-details-title">{product.title}</h1>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                            <h1 className="product-details-title" style={{ marginBottom: 0 }}>{product.title}</h1>
                             <button
                                 className={`bookmark-btn-large ${isInWishlist(product._id) ? 'saved' : ''} ${isAnimating ? 'animating' : ''}`}
                                 onClick={async () => {
@@ -332,18 +308,47 @@ const ProductDetails = () => {
                                     setTimeout(() => setIsAnimating(false), 300);
                                 }}
                                 aria-label={isInWishlist(product._id) ? "Remove from saved" : "Save item"}
+                                style={{ flexShrink: 0, marginLeft: '1rem' }}
                             >
                                 {isInWishlist(product._id) ? (
-                                    <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
                                         <path d="M5 5v14l7-4 7 4V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
                                     </svg>
                                 ) : (
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="24" height="24">
                                         <path d="M5 5v14l7-4 7 4V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
                                     </svg>
                                 )}
                             </button>
                         </div>
+
+                        <div className="info-header-meta" style={{ marginBottom: '20px', paddingBottom: '15px', borderBottom: '1px solid var(--outline-variant)' }}>
+                            {product.type === 'sell' && product.isSoldOut && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white', padding: '6px 12px', fontSize: '0.75rem'}}>Sold Out</span>}
+                            {product.type === 'rent' && product.stock === 0 && <span className="badge badge-sold-out" style={{background: '#dc3545', color: 'white', padding: '6px 12px', fontSize: '0.75rem'}}>Out of Stock</span>}
+                            {product.type === 'rent' && product.stock > 0 && <span className="badge" style={{background: '#28a745', color: 'white', padding: '6px 12px', fontSize: '0.75rem'}}>Available</span>}
+                            
+                            <span className="trust-rating" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--on-surface-variant)', fontWeight: 600 }}>
+                                {reviewCount > 0 ? (
+                                    <>⭐ {(avgRating || 0).toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</>
+                                ) : (
+                                    <>⭐ No reviews yet</>
+                                )}
+                            </span>
+                            
+                            {!isOwner && (
+                                <button 
+                                    className="report-trigger-btn" 
+                                    onClick={() => setIsReportModalOpen(true)}
+                                    title="Report this product"
+                                    style={{ marginLeft: 'auto', background: 'transparent', border: '1px solid var(--outline-variant)', padding: '5px 12px', borderRadius: '20px', fontSize: '0.75rem', cursor: 'pointer', transition: 'var(--transition)' }}
+                                    onMouseOver={(e) => e.currentTarget.style.background = '#fef2f2'}
+                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    🚩 Report
+                                </button>
+                            )}
+                        </div>
+
                         
                         <div className="price-display">
                             <span className="price-value">
@@ -503,6 +508,11 @@ const ProductDetails = () => {
 
                 {/* ─── Extended Details ─── */}
                 <div className="details-extended">
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem' }}>
+                        <span className="badge badge-category" style={{ padding: '6px 12px', background: 'var(--surface-high)', color: 'var(--on-surface-variant)', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600 }}>🏷️ {product.category}</span>
+                        <span className="badge badge-type" style={{ padding: '6px 12px', background: 'var(--surface-high)', color: 'var(--on-surface-variant)', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600 }}>📦 {product.type.toUpperCase()}</span>
+                    </div>
+
                     <h3 className="section-label">Product Description</h3>
                     <p className="product-desc-text">
                         {product.description || "The seller hasn't provided a detailed description for this item."}

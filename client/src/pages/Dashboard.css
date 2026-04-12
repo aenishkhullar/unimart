@@ -191,6 +191,20 @@
   min-width: 180px;
 }
 
+.order-actions-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.order-actions-row .btn-review-trigger {
+  margin-top: 0;
+}
+
 .status-badge {
   font-family: var(--font-body);
   font-size: 0.75rem;

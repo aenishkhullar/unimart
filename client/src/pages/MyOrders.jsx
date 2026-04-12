@@ -303,53 +303,54 @@ const MyOrders = () => {
                     </div>
                   )}
                   
-                  {order?.status === 'completed' && !order?.isReviewed && (
-                    <button 
-                      className="btn-review-trigger"
-                      onClick={() => setActiveReviewId(activeReviewId === order._id ? null : order._id)}
-                    >
-                      {activeReviewId === order._id ? 'Cancel' : 'Write Review'}
-                    </button>
-                  )}
+                  <div className="order-actions-row">
+                    {order?.status === 'completed' && !order?.isReviewed && (
+                      <button 
+                        className="btn-review-trigger"
+                        onClick={() => setActiveReviewId(activeReviewId === order._id ? null : order._id)}
+                      >
+                        {activeReviewId === order._id ? 'Cancel' : 'Write Review'}
+                      </button>
+                    )}
 
-                  {order?.isReviewed && (
-                    <div className="review-display-actions" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <span className="reviewed-badge" style={{ display: 'block' }}>⭐ Rated: {order.review.rating}/5</span>
-                      <div className="review-btn-group" style={{ display: 'flex', gap: '8px' }}>
-                          <button 
-                            className="btn-review-trigger" 
-                            style={{ fontSize: '0.7rem', padding: '4px 8px' }}
-                            onClick={() => handleEditClick(order)}
-                            disabled={reviewLoading}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className="btn-review-trigger" 
-                            style={{ fontSize: '0.7rem', padding: '4px 8px', borderColor: 'var(--error)', color: 'var(--error)' }}
-                            onClick={() => handleDeleteReview(order.review._id)}
-                            disabled={reviewLoading}
-                          >
-                            Delete
-                          </button>
+                    {order?.isReviewed && (
+                      <div className="review-display-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <span className="reviewed-badge">⭐ Rated: {order.review.rating}/5</span>
+                        <div className="review-btn-group" style={{ display: 'flex', gap: '8px' }}>
+                            <button 
+                              className="btn-review-trigger" 
+                              style={{ fontSize: '0.7rem', padding: '4px 8px' }}
+                              onClick={() => handleEditClick(order)}
+                              disabled={reviewLoading}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              className="btn-review-trigger" 
+                              style={{ fontSize: '0.7rem', padding: '4px 8px', borderColor: 'var(--error)', color: 'var(--error)' }}
+                              onClick={() => handleDeleteReview(order.review._id)}
+                              disabled={reviewLoading}
+                            >
+                              Delete
+                            </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {(order?.status === 'completed' || order?.status === 'returned') && (
-                    <button
-                      className="btn-review-trigger"
-                      style={{ 
-                        marginTop: '8px',
-                        borderColor: '#6366f1',
-                        color: '#6366f1',
-                        fontWeight: 600
-                      }}
-                      onClick={() => navigate(`/order-receipt/${order._id}`)}
-                    >
-                      📄 Generate Receipt
-                    </button>
-                  )}
+                    {(order?.status === 'completed' || order?.status === 'returned') && (
+                      <button
+                        className="btn-review-trigger"
+                        style={{ 
+                          borderColor: '#6366f1',
+                          color: '#6366f1',
+                          fontWeight: 600
+                        }}
+                        onClick={() => navigate(`/order-receipt/${order._id}`)}
+                      >
+                        📄 Generate Receipt
+                      </button>
+                    )}
+                  </div>
 
                   <div className="order-timestamp" style={{ fontSize: '0.7rem', color: 'var(--on-surface-variant)', marginTop: 'auto' }}>
                     Ordered {order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
