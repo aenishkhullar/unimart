@@ -180,6 +180,9 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="nav-dropdown-divider" />
+                  <Link to="/profile" id="nav-profile-link" className="nav-dropdown-item" role="menuitem">
+                    <span>👤</span> My Profile
+                  </Link>
                   <Link to="/my-orders" id="nav-my-orders-link" className="nav-dropdown-item" role="menuitem">
                     <span>🛍️</span> My Orders
                   </Link>

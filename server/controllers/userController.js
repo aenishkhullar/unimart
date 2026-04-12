@@ -17,8 +17,6 @@ const generateOtp = () => {
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    console.log("EMAIL_USER:", process.env.EMAIL_USER);
-    console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
     const { name, email, password, collegeName, collegeIdNumber, acceptedTerms } = req.body;
 
     // Validate required fields
@@ -321,6 +319,9 @@ export const getUserProfile = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          collegeName: user.collegeName,
+          collegeIdNumber: user.collegeIdNumber,
+          isVerified: user.emailVerified,
         },
       });
     } else {
