@@ -1,0 +1,236 @@
+.help-center-page {
+  background: var(--surface, #f9f9f9);
+  min-height: 100vh;
+  padding-bottom: 5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--on-surface, #1a1c1c);
+}
+
+.help-title {
+  font-family: 'Epilogue', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.75rem;
+}
+
+.help-subtitle {
+  font-size: 1.125rem;
+  opacity: 0.7;
+  max-width: 500px;
+  margin: 0 auto 2.5rem;
+  font-weight: 400;
+}
+
+.help-cta-header {
+  margin: 1.5rem 0;
+}
+
+.btn-contact-support {
+  display: inline-block;
+  background: var(--accent, #F5A623);
+  color: #000;
+  text-decoration: none;
+  padding: 1rem 2.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: 'Epilogue', sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(245, 166, 35, 0.3);
+}
+
+.btn-contact-support:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(245, 166, 35, 0.45);
+  filter: brightness(1.05);
+}
+
+.help-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 60px;
+  position: relative;
+  z-index: 5;
+}
+
+.faq-section {
+  background: #fff;
+  border-radius: 24px;
+  padding: 3.5rem;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.05);
+  margin-top: 80px;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-family: 'Epilogue', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.faq-item {
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+
+.faq-item:hover {
+  border-color: #ddd;
+  background: #fafafa;
+}
+
+.faq-item.active {
+  border-color: #000;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.faq-question {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #111;
+}
+
+.faq-toggle-icon {
+  font-size: 1.25rem;
+  color: #666;
+}
+
+.faq-answer {
+  padding: 0 1.5rem 1.5rem;
+  color: #555;
+  line-height: 1.7;
+}
+
+.contact-section {
+  text-align: center;
+  margin-top: 4rem;
+  margin-bottom: 5rem;
+}
+
+.contact-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 3.5rem 2rem;
+  border: 1px dashed #ccc;
+  transition: all 0.3s;
+}
+
+.contact-card:hover {
+  border-color: #000;
+  border-style: solid;
+}
+
+.contact-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.contact-title {
+  font-family: 'Epilogue', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.contact-desc {
+  color: #666;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+.contact-email {
+  display: inline-block;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  padding: 1rem 2.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.2s;
+}
+
+.contact-email:hover {
+  opacity: 0.85;
+}
+
+.contact-footer {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.safety-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.safety-card {
+  background: #fff;
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+  transition: transform 0.3s;
+}
+
+.safety-card:hover {
+  transform: translateY(-8px);
+  border-color: #000;
+}
+
+.safety-num {
+  font-family: 'Epilogue', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #999;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.safety-card h3 {
+  font-family: 'Epilogue', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.safety-card p {
+  color: #666;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .safety-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .help-header {
+    padding: 5rem 1.5rem 4rem;
+  }
+  .faq-section {
+    padding: 2rem 1.25rem;
+  }
+}

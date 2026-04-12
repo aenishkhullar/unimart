@@ -17,6 +17,8 @@ import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderReceipt from "./pages/OrderReceipt";
 import Profile from "./pages/Profile";
+import HelpCenter from "./pages/HelpCenter";
+import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -111,7 +113,9 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/help" element={<HelpCenter />} />
       </Routes>
+      <Footer />
     </>
   );
 }

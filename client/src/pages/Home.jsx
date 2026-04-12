@@ -327,53 +327,6 @@ const Home = () => {
           </button>
         </div>
       </div>
-
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <footer className="editorial-footer">
-        <div className="editorial-footer-inner">
-          <div className="footer-top">
-            <div>
-              <div className="footer-brand-name">Uni<span>Mart</span></div>
-              <p className="footer-brand-desc">
-                The curated campus exchange for the next generation of scholars and makers.
-              </p>
-            </div>
-            <div>
-              <div className="footer-heading">Quick Links</div>
-              <ul className="footer-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/browse">Browse</a></li>
-                <li><a href="/create-product">List Product</a></li>
-              </ul>
-            </div>
-            <div>
-              <div className="footer-heading">Categories</div>
-              <ul className="footer-links">
-                <li><a href="/browse?category=Books">Books</a></li>
-                <li><a href="/browse?category=Electronics">Electronics</a></li>
-                <li><a href="/browse?category=Transport">Transport</a></li>
-                <li><a href="/browse?category=Dorm%20Essentials">Dorm Essentials</a></li>
-              </ul>
-            </div>
-            <div>
-              <div className="footer-heading">Support</div>
-              <ul className="footer-links">
-                <li><a href="/#">Help Center</a></li>
-                <li><a href="/#">Terms of Service</a></li>
-                <li><a href="/#">Privacy Policy</a></li>
-                <li><a href="/#">Safety Tips</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p className="footer-copyright">
-              © {new Date().getFullYear()} UniMart. All rights reserved.
-            </p>
-            <p className="footer-copyright">Made with ♥ for campus life</p>
-          </div>
-        </div>
-      </footer>
-
     </div>
   );
 };
