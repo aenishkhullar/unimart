@@ -135,19 +135,19 @@ export const createOrder = async (req, res) => {
         });
       }
 
-      // Check for overlapping bookings: existingS < newE AND newS < existingE
+      // Check for overlapping confirmed bookings: existingS <= newE AND existingE >= newS
       const overlappingOrdersCount = await Order.countDocuments({
         product: product._id,
         type: 'rent',
-        status: { $in: ['pending', 'confirmed'] },
-        rentStartDate: { $lt: end },
-        rentEndDate: { $gt: start },
+        status: 'confirmed',
+        rentStartDate: { $lte: end },
+        rentEndDate: { $gte: start },
       });
 
-      if (overlappingOrdersCount >= product.stock) {
+      if (overlappingOrdersCount >= (product.stock || 0)) {
         return res.status(400).json({
           success: false,
-          message: 'Currently unavailable for selected dates',
+          message: 'Item not available for selected dates',
         });
       }
 
@@ -323,6 +323,26 @@ export const updateOrderStatus = async (req, res) => {
                 message: 'Completed orders can only be marked as returned (rental items)',
             });
         }
+    }
+
+    // If moving to confirmed status, perform a date-based availability check for rentals
+    if (status === 'confirmed' && order.type === 'rent') {
+      const overlappingOrdersCount = await Order.countDocuments({
+        product: order.product._id,
+        type: 'rent',
+        status: 'confirmed',
+        _id: { $ne: order._id }, // Exclude current order
+        rentStartDate: { $lte: order.rentEndDate },
+        rentEndDate: { $gte: order.rentStartDate },
+      });
+
+      const product = await Product.findById(order.product._id);
+      if (overlappingOrdersCount >= (product.stock || 0)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Item not available for selected dates (already booked)',
+        });
+      }
     }
 
     order.status = status;

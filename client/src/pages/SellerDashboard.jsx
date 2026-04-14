@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import './Dashboard.css';
 
 const SellerDashboard = () => {
@@ -65,7 +66,7 @@ const SellerDashboard = () => {
     
     // Store original state for fallback if needed (though we'll just handle error)
     try {
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+      const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -109,8 +110,14 @@ const SellerDashboard = () => {
       
       // Re-fetch to ensure consistency if needed, or just rely on optimistic update
       // fetchSellerData(); 
+      toast.success(res.data.message || `Order ${newStatus} successfully!`);
     } catch (err) {
-      alert(`Error updating status: ${err.response?.data?.message || err.message}`);
+      const backendMessage = err.response?.data?.message || err.message || 'Failed to update status.';
+      if (backendMessage.includes("Item not available for selected dates")) {
+        toast.error("Item not available for selected dates. Please choose different dates.");
+      } else {
+        toast.error(backendMessage);
+      }
     }
   };
 
@@ -174,7 +181,7 @@ const SellerDashboard = () => {
     const token = localStorage.getItem('token');
     setVerifyingOrderId(orderId);
     try {
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/verify-license`, {}, {
+      const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/verify-license`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Update local state
@@ -183,8 +190,9 @@ const SellerDashboard = () => {
           order._id === orderId ? { ...order, isLicenseVerified: true } : order
         )
       );
+      toast.success('License verified successfully!');
     } catch (err) {
-      alert(`Error verifying license: ${err.response?.data?.message || err.message}`);
+      toast.error(err.response?.data?.message || 'Failed to verify license.');
     } finally {
       setVerifyingOrderId(null);
     }
@@ -227,12 +235,13 @@ const SellerDashboard = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/products/${productId}`, {
+        const res = await axios.delete(`http://localhost:5000/api/products/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProducts(prev => prev.filter(p => p._id !== productId));
+        toast.success('Product deleted successfully.');
       } catch (err) {
-        alert(err.response?.data?.message || 'Failed to delete product.');
+        toast.error(err.response?.data?.message || 'Failed to delete product.');
       }
     }
   };

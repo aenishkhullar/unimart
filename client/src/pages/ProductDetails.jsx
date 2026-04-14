@@ -117,8 +117,9 @@ const ProductDetails = () => {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 await axios.delete(`http://localhost:5000/api/products/${id}`, config);
                 navigate('/browse'); // Redirect to browse after deletion
+                toast.success('Product deleted successfully.');
             } catch (err) {
-                alert(err.response?.data?.message || 'Failed to delete product.');
+                toast.error(err.response?.data?.message || 'Failed to delete product.');
             }
         }
     };
@@ -173,7 +174,12 @@ const ProductDetails = () => {
             toast.success("Order placed successfully");
         } catch (err) {
             setOrderStatus('error');
-            toast.error("Something went wrong");
+            const backendMessage = err.response?.data?.message || "Something went wrong";
+            if (backendMessage.includes("Item not available for selected dates")) {
+                toast.error("Item not available for selected dates. Please choose different dates.");
+            } else {
+                toast.error(backendMessage);
+            }
         }
     };
 
@@ -191,7 +197,7 @@ const ProductDetails = () => {
             navigate(`/messages/${res.data._id}`);
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.message || 'Failed to start conversation.');
+            toast.error(err.response?.data?.message || 'Failed to start conversation.');
         } finally {
             setContactingSeller(false);
         }
@@ -206,9 +212,14 @@ const ProductDetails = () => {
             }, { headers: { Authorization: `Bearer ${token}` } });
             
             setProductOrders(prev => prev.filter(order => order._id !== orderId));
-            alert(res.data.message || `Order ${newStatus} successfully!`);
+            toast.success(res.data.message || `Order ${newStatus} successfully!`);
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to update status.');
+            const backendMessage = err.response?.data?.message || 'Failed to update status.';
+            if (backendMessage.includes("Item not available for selected dates")) {
+                toast.error("Item not available for selected dates. Please choose different dates.");
+            } else {
+                toast.error(backendMessage);
+            }
         } finally {
             setUpdatingOrderId(null);
         }
@@ -216,7 +227,7 @@ const ProductDetails = () => {
 
     const submitReview = async () => {
         // Removed as per transaction-based review requirement
-        alert("Reviews can only be added from the My Orders page after a completed purchase.");
+        toast.error("Reviews can only be added from the My Orders page after a completed purchase.");
     };
 
     const handleRestockSubmit = async (e) => {
