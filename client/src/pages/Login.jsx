@@ -150,7 +150,7 @@ const Login = () => {
                     'Content-Type': 'application/json'
                 }
             };
-            const res = await axios.post('http://localhost:5000/api/users/login', formData, config);
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, formData, config);
             
             if (res.data) {
                 localStorage.setItem('token', res.data.token);

@@ -21,7 +21,7 @@ const ReportModal = ({ isOpen, onClose, targetType, targetId, targetName }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/reports', {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reports`, {
         targetType,
         targetId,
         reason

@@ -29,11 +29,11 @@ const SellerDashboard = () => {
     }
 
     try {
-      const res = await axios.get('http://localhost:5000/api/orders/seller-orders', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/seller-orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      const productsRes = await axios.get('http://localhost:5000/api/products/my-products', {
+      const productsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/my-products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -46,8 +46,8 @@ const SellerDashboard = () => {
         new Date(b.createdAt) - new Date(a.createdAt)
       );
       
-      setOrders(sortedOrders);
-      setProducts(productsData);
+      setOrders(Array.isArray(sortedOrders) ? sortedOrders : []);
+      setProducts(Array.isArray(productsData) ? productsData : []);
       setTotalEarnings(res.data.totalEarnings || 0);
     } catch (err) {
       console.error('Fetch Seller Data Error:', err);
@@ -66,7 +66,7 @@ const SellerDashboard = () => {
     
     // Store original state for fallback if needed (though we'll just handle error)
     try {
-      const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -181,7 +181,7 @@ const SellerDashboard = () => {
     const token = localStorage.getItem('token');
     setVerifyingOrderId(orderId);
     try {
-      const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/verify-license`, {}, {
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/verify-license`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Update local state
@@ -205,7 +205,7 @@ const SellerDashboard = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.patch(`http://localhost:5000/api/products/${restockProductId}/restock`, 
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/api/products/${restockProductId}/restock`, 
         { newStock: Number(restockQuantity) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -235,7 +235,7 @@ const SellerDashboard = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.delete(`http://localhost:5000/api/products/${productId}`, {
+        const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/products/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProducts(prev => prev.filter(p => p._id !== productId));
@@ -259,8 +259,8 @@ const SellerDashboard = () => {
     );
   }
 
-  const activeOrdersCount = orders.filter(o => o.status !== 'completed' && o.status !== 'returned' && o.status !== 'cancelled').length;
-  const totalCompleted = orders.filter(o => o.status === 'completed').length;
+  const activeOrdersCount = (Array.isArray(orders) ? orders : []).filter(o => o.status !== 'completed' && o.status !== 'returned' && o.status !== 'cancelled').length;
+  const totalCompleted = (Array.isArray(orders) ? orders : []).filter(o => o.status === 'completed').length;
 
   return (
     <div className="dashboard-page">
@@ -305,7 +305,7 @@ const SellerDashboard = () => {
           </div>
         ) : (
           <div className="orders-list">
-            {orders.map((order) => (
+            {(Array.isArray(orders) ? orders : []).map((order) => (
               <div key={order?._id} className="order-card">
                 <div className="order-img-wrapper">
                     <img 
@@ -441,7 +441,7 @@ const SellerDashboard = () => {
           </div>
         ) : (
           <div className="orders-list">
-            {products.map((product) => (
+            {(Array.isArray(products) ? products : []).map((product) => (
               <div key={product._id} className="order-card" style={{ display: 'flex', alignItems: 'center' }}>
                 <div className="order-img-wrapper">
                     <img 

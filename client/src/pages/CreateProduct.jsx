@@ -51,7 +51,7 @@ const CreateProduct = () => {
         setError('');
 
         try {
-            const res = await axios.post('http://localhost:5000/api/upload', formData, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/upload`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setImage(res.data.url);
@@ -112,7 +112,7 @@ const CreateProduct = () => {
             }
 
             // 3. API Call
-            const res = await axios.post('http://localhost:5000/api/products', payload, config);
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/products`, payload, config);
 
             if (res.data) {
                 toast.success("Listing created successfully");

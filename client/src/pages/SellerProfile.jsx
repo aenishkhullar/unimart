@@ -15,7 +15,7 @@ const SellerProfile = () => {
     useEffect(() => {
         const fetchSellerData = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/users/${id}/profile`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/${id}/profile`);
                 setData(res.data.data);
                 setLoading(false);
             } catch (err) {

@@ -15,10 +15,11 @@ export const WishlistProvider = ({ children }) => {
     }
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/users/wishlist', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setWishlist(res.data.data.map(item => item._id || item));
+      const responseData = res.data?.data;
+      setWishlist((Array.isArray(responseData) ? responseData : []).map(item => item._id || item));
     } catch (err) {
       console.error('Error fetching wishlist:', err);
     } finally {
@@ -46,7 +47,7 @@ export const WishlistProvider = ({ children }) => {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/users/wishlist/${productId}`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/users/wishlist/${productId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return true;

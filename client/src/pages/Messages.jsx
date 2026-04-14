@@ -4,7 +4,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import './Messages.css';
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = `${import.meta.env.VITE_API_URL}`;
 let socket;
 
 const Messages = () => {
@@ -71,10 +71,10 @@ const Messages = () => {
 
         const fetchConversations = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/chat", {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setConversations(res.data);
+                setConversations(Array.isArray(res.data) ? res.data : []);
             } catch (error) {
                 console.error("Error fetching conversations:", error);
             } finally {
@@ -92,10 +92,10 @@ const Messages = () => {
         const fetchMessages = async () => {
             setLoadingMessages(true);
             try {
-                const res = await axios.get(`http://localhost:5000/api/chat/${id}/messages`, {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${id}/messages`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setMessages(res.data);
+                setMessages(Array.isArray(res.data) ? res.data : []);
             } catch (error) {
                 console.error("Error fetching messages:", error);
             } finally {
@@ -118,7 +118,7 @@ const Messages = () => {
 
         setSending(true);
         try {
-            const res = await axios.post(`http://localhost:5000/api/chat/${id}/message`, { text: textToSend }, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/${id}/message`, { text: textToSend }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -169,7 +169,7 @@ const Messages = () => {
                         ) : conversations.length === 0 ? (
                             <div className="empty-state">No conversations yet.</div>
                         ) : (
-                            conversations.map(conv => {
+                            (Array.isArray(conversations) ? conversations : []).map(conv => {
                                 const otherUser = conv.participants.find(p => p._id !== currentUser._id);
                                 return (
                                     <Link 
@@ -239,7 +239,7 @@ const Messages = () => {
                                 {loadingMessages ? (
                                     <div className="loading-state">Loading messages...</div>
                                 ) : (
-                                    messages.map((msg, index) => {
+                                    (Array.isArray(messages) ? messages : []).map((msg, index) => {
                                         const isMine = msg.sender === currentUser._id;
                                         return (
                                             <div key={index} className={`message-bubble-wrapper ${isMine ? 'mine' : 'theirs'}`}>

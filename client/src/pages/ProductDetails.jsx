@@ -51,7 +51,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
                 setProduct(res.data.data || res.data);
                 setLoading(false);
             } catch (err) {
@@ -67,10 +67,10 @@ const ProductDetails = () => {
             if (product && currentUser && product.user && currentUser._id === (product.user._id || product.user)) {
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await axios.get(`http://localhost:5000/api/orders/product/${id}`, {
+                    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/product/${id}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    setProductOrders(res.data.orders);
+                    setProductOrders(Array.isArray(res.data.orders) ? res.data.orders : []);
                 } catch (err) {
                     console.error('Failed to fetch product orders:', err);
                 }
@@ -81,8 +81,8 @@ const ProductDetails = () => {
 
     const fetchReviews = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/reviews/${id}`);
-            setReviews(res.data.reviews || []);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/${id}`);
+            setReviews(Array.isArray(res.data.reviews || []) ? res.data.reviews || [] : []);
             setAvgRating(res.data.avgRating || 0);
             setReviewCount(res.data.count || 0);
         } catch (err) {
@@ -115,7 +115,7 @@ const ProductDetails = () => {
             try {
                 const token = localStorage.getItem('token');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/products/${id}`, config);
                 navigate('/browse'); // Redirect to browse after deletion
                 toast.success('Product deleted successfully.');
             } catch (err) {
@@ -167,7 +167,7 @@ const ProductDetails = () => {
         }
 
         try {
-            const res = await axios.post('http://localhost:5000/api/orders', payload, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrderStatus('success');
@@ -191,7 +191,7 @@ const ProductDetails = () => {
         }
         setContactingSeller(true);
         try {
-            const res = await axios.post(`http://localhost:5000/api/chat/${product._id}`, {}, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat/${product._id}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             navigate(`/messages/${res.data._id}`);
@@ -207,7 +207,7 @@ const ProductDetails = () => {
         setUpdatingOrderId(orderId);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, {
+            const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/status`, {
                 status: newStatus 
             }, { headers: { Authorization: `Bearer ${token}` } });
             
@@ -237,7 +237,7 @@ const ProductDetails = () => {
         
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.patch(`http://localhost:5000/api/products/${id}/restock`, 
+            const res = await axios.patch(`${import.meta.env.VITE_API_URL}/api/products/${id}/restock`, 
                 { newStock: Number(restockQuantity) },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -567,7 +567,7 @@ const ProductDetails = () => {
                                     <p>No reviews yet. Be the first to review after purchase!</p>
                                 </div>
                             ) : (
-                                reviews.map((rev) => (
+                                (Array.isArray(reviews) ? reviews : []).map((rev) => (
                                     <div key={rev._id} className="review-item-card">
                                         <div className="review-card-header">
                                             <div className="reviewer-info">
@@ -597,7 +597,7 @@ const ProductDetails = () => {
                     <div className="pending-orders-section">
                         <h3 className="section-label">📋 Incoming Purchase Requests</h3>
                         <div className="order-cards-container">
-                            {productOrders.map(order => (
+                            {(Array.isArray(productOrders) ? productOrders : []).map(order => (
                                 <div key={order._id} className="order-card-compact">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                                         <div>
@@ -639,7 +639,7 @@ const ProductDetails = () => {
                                                         onClick={async () => {
                                                             try {
                                                                 const token = localStorage.getItem('token');
-                                                                await axios.put(`http://localhost:5000/api/orders/${order._id}/verify-license`, {}, {
+                                                                await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${order._id}/verify-license`, {}, {
                                                                     headers: { Authorization: `Bearer ${token}` }
                                                                 });
                                                                 setProductOrders(prev => prev.map(o => o._id === order._id ? { ...o, isLicenseVerified: true } : o));

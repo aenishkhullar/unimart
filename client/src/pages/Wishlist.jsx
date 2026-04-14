@@ -12,10 +12,11 @@ const Wishlist = () => {
   const fetchWishlistItems = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/users/wishlist', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/wishlist`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setWishlistItems(res.data.data);
+      const responseData = res.data?.data;
+      setWishlistItems(Array.isArray(responseData) ? responseData : []);
       setLoading(false);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch wishlist items');
@@ -65,7 +66,7 @@ const Wishlist = () => {
           </div>
         ) : (
           <div className="product-grid" style={{ marginTop: '2rem' }}>
-            {wishlistItems.map(product => (
+            {(Array.isArray(wishlistItems) ? wishlistItems : []).map(product => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

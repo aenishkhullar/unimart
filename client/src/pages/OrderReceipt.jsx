@@ -14,7 +14,7 @@ const OrderReceipt = () => {
     const fetchReceiptData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get(`http://localhost:5000/api/orders/${id}/receipt`, {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/${id}/receipt`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (data.success) {

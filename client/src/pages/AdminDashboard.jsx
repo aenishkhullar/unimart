@@ -67,7 +67,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     setStatsLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/stats', config);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/stats`, config);
       setStats(res.data);
     } catch (err) {
       console.error('Failed to fetch stats:', err);
@@ -87,8 +87,8 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/users', config);
-      setUsers(res.data);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, config);
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch users');
     }
@@ -99,8 +99,8 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/products', config);
-      setProducts(res.data);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/products`, config);
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch products');
     }
@@ -111,8 +111,8 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/orders', config);
-      setOrders(res.data);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/orders`, config);
+      setOrders(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch orders');
     }
@@ -123,8 +123,8 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/reports', config);
-      setReports(res.data);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/reports`, config);
+      setReports(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch reports');
     }
@@ -134,13 +134,13 @@ const AdminDashboard = () => {
   // Derived filtered data
   const getFilteredData = () => {
     if (activeTab === 'users') {
-      return users.filter(user => 
+      return (Array.isArray(users) ? users : []).filter(user => 
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user._id.toLowerCase().includes(searchTerm.toLowerCase())
       );
     } else if (activeTab === 'products') {
-      return products.filter(product => {
+      return (Array.isArray(products) ? products : []).filter(product => {
         const matchesCategory = categoryFilter ? product.category === categoryFilter : true;
         const matchesType = typeFilter ? product.type === typeFilter : true;
         const matchesSearch = searchTerm ? (
@@ -150,11 +150,11 @@ const AdminDashboard = () => {
         return matchesCategory && matchesType && matchesSearch;
       });
     } else if (activeTab === 'orders') {
-      return orders.filter(order => 
+      return (Array.isArray(orders) ? orders : []).filter(order => 
         statusFilter ? order.status === statusFilter : true
       );
     } else if (activeTab === 'reports') {
-      return reports.filter(report => 
+      return (Array.isArray(reports) ? reports : []).filter(report => 
         targetTypeFilter ? report.targetType === targetTypeFilter : true
       );
     }
@@ -162,12 +162,12 @@ const AdminDashboard = () => {
   };
 
   const filteredData = getFilteredData();
-  const uniqueCategories = activeTab === 'products' ? [...new Set(products.map(p => p.category))] : [];
+  const uniqueCategories = activeTab === 'products' ? [...new Set((Array.isArray(products) ? products : []).map(p => p.category))] : [];
 
   const handleBlockUser = async (id, isBlocked) => {
     if (!window.confirm(`Are you sure you want to ${isBlocked ? 'unblock' : 'block'} this user?`)) return;
     try {
-      await axios.patch(`http://localhost:5000/api/admin/users/${id}/block`, {}, config);
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}/block`, {}, config);
       showToast(`User ${isBlocked ? 'unblocked' : 'blocked'} successfully`);
       fetchUsers();
       fetchStats();
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
   const handleDeleteUser = async (id) => {
     if (!window.confirm('Are you sure you want to completely delete this user? This cannot be undone.')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${id}`, config);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, config);
       showToast('User deleted successfully');
       fetchUsers();
       fetchStats();
@@ -191,7 +191,7 @@ const AdminDashboard = () => {
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/products/${id}`, config);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/products/${id}`, config);
       showToast('Product deleted successfully');
       fetchProducts();
       fetchStats();
@@ -203,7 +203,7 @@ const AdminDashboard = () => {
   const handleResolveReport = async (id) => {
     if (!window.confirm('Mark this report as resolved?')) return;
     try {
-      await axios.patch(`http://localhost:5000/api/admin/reports/${id}/resolve`, {}, config);
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/reports/${id}/resolve`, {}, config);
       showToast('Report marked as resolved');
       fetchReports();
       fetchStats();

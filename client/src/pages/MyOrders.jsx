@@ -26,7 +26,7 @@ const MyOrders = () => {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/orders/my', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/my`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -38,7 +38,7 @@ const MyOrders = () => {
           new Date(b.createdAt) - new Date(a.createdAt)
         );
         
-        setOrders(sortedOrders);
+        setOrders(Array.isArray(sortedOrders) ? sortedOrders : []);
       } catch (err) {
         console.error('Fetch Orders Error:', err);
         setError(err.response?.data?.message || 'Unable to load your orders. Please try again later.');
@@ -53,14 +53,14 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5000/api/orders/my', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/my`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const ordersData = Array.isArray(res.data?.orders) ? res.data.orders : [];
       const sortedOrders = [...ordersData].sort((a, b) => 
         new Date(b.createdAt) - new Date(a.createdAt)
       );
-      setOrders(sortedOrders);
+      setOrders(Array.isArray(sortedOrders) ? sortedOrders : []);
     } catch (err) {
       console.error('Refresh Orders Error:', err);
     }
@@ -75,7 +75,7 @@ const MyOrders = () => {
     setReviewLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/reviews/${productId}`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reviews/${productId}`, {
         rating,
         comment
       }, {
@@ -111,7 +111,7 @@ const MyOrders = () => {
     setReviewLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/reviews/${editingReviewId}`, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/reviews/${editingReviewId}`, {
         rating,
         comment
       }, {
@@ -136,7 +136,7 @@ const MyOrders = () => {
       setReviewLoading(true);
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/${reviewId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Review deleted successfully!");
@@ -153,7 +153,7 @@ const MyOrders = () => {
     setConfirmLoading(orderId);
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`http://localhost:5000/api/orders/${orderId}/buyer-confirm`, {}, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/buyer-confirm`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Update UI instantly
@@ -205,7 +205,7 @@ const MyOrders = () => {
           </div>
         ) : (
           <div className="orders-list">
-            {orders.map((order) => (
+            {(Array.isArray(orders) ? orders : []).map((order) => (
               <React.Fragment key={order?._id}>
                 <div className="order-card">
                 <div className="order-img-wrapper">

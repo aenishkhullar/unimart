@@ -17,7 +17,7 @@ const Profile = () => {
           return;
         }
 
-        const res = await axios.get('http://localhost:5000/api/users/profile', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

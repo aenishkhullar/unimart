@@ -34,7 +34,7 @@ const EditProduct = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
                 const product = res.data.data || res.data;
                 setFormData({
                     title: product.title || '',
@@ -89,7 +89,7 @@ const EditProduct = () => {
                 payload.deposit = '';
             }
 
-            const res = await axios.put(`http://localhost:5000/api/products/${id}`, payload, config);
+            const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/products/${id}`, payload, config);
 
             if (res.data) {
                 setSuccess('Product updated successfully!');

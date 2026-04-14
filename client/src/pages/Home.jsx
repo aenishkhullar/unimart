@@ -90,8 +90,8 @@ const Home = () => {
   /* ─── Fetch products ─── */
   const fetchProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/products');
-      setProducts(res.data.data || res.data || []);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      setProducts(Array.isArray(res.data.data || res.data || []) ? res.data.data || res.data || [] : []);
       setError('');
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to fetch products');

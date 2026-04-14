@@ -61,8 +61,8 @@ const Browse = () => {
       if (mappedType) apiParams.append('type', mappedType);
       if (selectedCategory) apiParams.append('category', selectedCategory);
 
-      const res = await axios.get(`http://localhost:5000/api/products?${apiParams.toString()}`);
-      setProducts(res.data.data || []);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?${apiParams.toString()}`);
+      setProducts(Array.isArray(res.data.data || []) ? res.data.data || [] : []);
       setError('');
     } catch (err) {
       console.error('Error fetching products:', err);

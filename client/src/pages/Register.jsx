@@ -226,7 +226,7 @@ const Register = () => {
         setError('');
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/users/register', formData, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, formData, {
                 headers: { 'Content-Type': 'application/json' }
             });
             if (res.data?.success) {
@@ -251,7 +251,7 @@ const Register = () => {
         setError('');
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/users/verify-otp', {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/verify-otp`, {
                 email: formData.email,
                 otp: otpString
             }, {
@@ -274,7 +274,7 @@ const Register = () => {
         setError('');
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/users/resend-otp', {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/resend-otp`, {
                 email: formData.email
             }, {
                 headers: { 'Content-Type': 'application/json' }

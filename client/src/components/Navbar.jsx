@@ -27,10 +27,10 @@ const Navbar = () => {
     const fetchNotifications = async () => {
       if (token) {
         try {
-          const res = await axios.get('http://localhost:5000/api/notifications', {
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/notifications`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          setNotifications(res.data || []);
+          setNotifications(Array.isArray(res.data) ? res.data : []);
         } catch(err) {
           console.error(err);
         }
@@ -42,7 +42,7 @@ const Navbar = () => {
   const handleNotificationClick = async (notif) => {
     if (!notif.isRead) {
       try {
-        await axios.patch(`http://localhost:5000/api/notifications/${notif._id}`, {}, {
+        await axios.patch(`${import.meta.env.VITE_API_URL}/api/notifications/${notif._id}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setNotifications(prev => prev.map(n => n._id === notif._id ? { ...n, isRead: true } : n));
@@ -56,7 +56,7 @@ const Navbar = () => {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = (Array.isArray(notifications) ? notifications : []).filter(n => !n.isRead).length;
 
   /* Close dropdown when clicking outside */
   useEffect(() => {
@@ -131,7 +131,7 @@ const Navbar = () => {
                       {notifications.length === 0 ? (
                         <div className="nav-notif-empty">No notifications</div>
                       ) : (
-                        notifications.map(n => (
+                        (Array.isArray(notifications) ? notifications : []).map(n => (
                           <div 
                             key={n._id} 
                             className={`nav-notif-item ${!n.isRead ? 'unread' : ''}`}
