@@ -1,88 +1,162 @@
-# UniMart – Campus Marketplace Platform
+# UniMart
 
-UniMart is a full-stack campus marketplace built using the MERN stack that allows students to buy, sell, and rent items within their university. It provides a secure and efficient ecosystem for student-to-student transactions, specialized for the unique needs of a campus environment.
+UniMart is a comprehensive full-stack campus marketplace designed tailored for university ecosystems. It provides a professional, secure platform where students can seamlessly buy, sell, and rent items, fostering a sustainable and collaborative campus community.
 
-## Features
+## 🚀 Live Links
 
-- Buy & Sell system: Complete marketplace for students to list items for sale with category filtering and search.
-- Rental system: Specialized rental logic with date-based availability, deposit handling, and automated stock management.
-- Buyer confirmation system: Secure flow where buyers confirm receipt of items to facilitate transaction completion.
-- Seller order completion & return tracking: Dashboard for sellers to manage orders, mark items as delivered, and track rental returns.
-- Email OTP authentication: Secure registration and login using Nodemailer to verify university email addresses.
-- Admin dashboard: Centralized moderation interface with real-time marketplace statistics and user management.
-- Report & moderation system: Built-in reporting for items or users, allowing admins to maintain platform safety.
-- Wishlist: Personal collection of saved items for later viewing.
-- Real-time chat system: Instant messaging between buyers and sellers integrated with Socket.io for seamless negotiation.
+- **Frontend Deployment:** [https://unimart-client.vercel.app](https://unimart-client.vercel.app) *(Placeholders)*
+- **Backend Deployment:** [https://unimart-server.onrender.com](https://unimart-server.onrender.com) *(Placeholders)*
+- **GitHub Repository:** [https://github.com/aenishkhullar/unimart](https://github.com/aenishkhullar/unimart)
 
-## Tech Stack
+---
 
-- Frontend: React (Vite), Context API, CSS (Custom Design System)
-- Backend: Node.js, Express.js
-- Database: MongoDB (Mongoose)
-- Authentication: JWT (JSON Web Tokens) + Email OTP (Nodemailer)
-- Others: Socket.io (Real-time Chat), Cloudinary (Image Hosting), Multer (File Handling)
+## ✨ Features
 
-## Folder Structure
+- **Buy and Sell Marketplace:** A complete listing system for student-to-student commerce.
+- **Rental System:** Specialized rental logic with stock management and date-base availability.
+- **Buyer Confirmation Flow:** Secure transaction cycle where buyers confirm receipt of items.
+- **Seller Return Tracking:** Dashboard for sellers to manage active rentals and track returns.
+- **Order Receipt Generation:** Automated professional receipts for all completed transactions.
+- **Wishlist:** Personal collection area for saving items for future purchase or rental.
+- **Real-time Chat:** Instant messaging between buyers and sellers for seamless communication.
+- **Reviews and Ratings:** Peer-to-peer feedback system to build trust within the community.
+- **Secure Authentication:** Email OTP-based registration and login for university verification.
+- **Help Center:** Dedicated support section with FAQs and platform guidance.
+- **Privacy Policy & TOS:** Legally structured policies integrated into the platform.
+- **Admin Dashboard:** Centralized panel for platform moderation and oversight.
+- **User & Product Management:** Robust tools for managing accounts and listings.
+- **Report & Complaint System:** Integrated safety mechanism for reporting issues.
+- **Marketplace Stats:** Real-time analytics and statistics for platform performance.
+- **Toast Notifications:** Smooth and responsive UI feedback using React Hot Toast.
+- **Inventory Management:** Smart handling of sold-out items and restock status.
 
-- client/
-  - public/: Static assets.
-  - src/
-    - components/: Reusable UI components.
-    - context/: State management using React Context API.
-    - pages/: Main application views.
-    - assets/: Stylesheets and local images.
-- server/
-  - controllers/: Business logic for API endpoints.
-  - models/: Mongoose schemas and database models.
-  - routes/: API route definitions.
-  - middleware/: Authentication and configuration logic.
-  - utils/: Helper functions and service configurations.
+---
 
-## Installation & Setup
+## 🛠 Tech Stack
 
-1. Clone the repository
+**Frontend**
+- React.js (Vite)
+- Vanilla CSS (Custom professional design system)
+- React Router DOM (Navigation)
+- Socket.io-client (Real-time communication)
+- Axios (API requests)
+- React Hot Toast (UI notifications)
+
+**Backend**
+- Node.js & Express.js
+- Socket.io (Real-time engine)
+- JWT (Secure Authentication)
+- Nodemailer (Email OTP service)
+- Multer & Cloudinary (Image handling and storage)
+- Bcryptjs (Password encryption)
+
+**Database**
+- MongoDB (Mongoose ODM)
+- MongoDB Atlas (Cloud hosting)
+
+**Deployment**
+- Frontend: Vercel
+- Backend: Render
+
+---
+
+## 📁 Folder Structure
+
+```text
+unimart/
+├── client/                # React frontend (Vite)
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Application views and routes
+│   │   ├── context/       # State management using Context API
+│   │   └── assets/        # Stylesheets and media
+├── server/                # Node.js backend
+│   ├── controllers/       # Business logic for endpoints
+│   ├── models/            # Mongoose schemas
+│   ├── routes/            # API route definitions
+│   ├── middleware/        # Auth and security logic
+│   └── utils/             # Helper services (Email, Cloudinary)
+```
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/aenishkhullar/unimart.git
 cd unimart
 ```
 
-2. Backend Setup
-- Navigate to the server folder: `cd server`
-- Install dependencies: `npm install`
-- Create a .env file and add your configuration.
-- Run the server: `npm run dev`
+### 2. Backend Configuration
+```bash
+cd server
+npm install
+# Create a .env file based on the Environment Variables section below
+npm run dev
+```
 
-3. Frontend Setup
-- Navigate to the client folder: `cd client`
-- Install dependencies: `npm install`
-- Run the application: `npm run dev`
+### 3. Frontend Configuration
+```bash
+cd client
+npm install
+# Create a .env file with VITE_API_URL
+npm run dev
+```
 
-## Environment Variables
+---
 
-The following environment variables are required in the server/.env file:
+## 🔑 Environment Variables
 
-- MONGO_URI: MongoDB connection string
-- JWT_SECRET: Secret key for JWT signing
-- EMAIL_USER: Nodemailer email service address
-- EMAIL_PASS: Nodemailer email service password
-- CLOUDINARY_CLOUD_NAME: Cloudinary account name
-- CLOUDINARY_API_KEY: Cloudinary API key
-- CLOUDINARY_API_SECRET: Cloudinary API secret
+### Backend (`server/.env`)
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+EMAIL_USER=your_university_email
+EMAIL_PASS=your_email_app_password
+OTP_EXPIRES_IN_MINUTES=10
+FRONTEND_URL=http://localhost:5173
+```
 
-## Usage
+### Frontend (`client/.env`)
+```env
+VITE_API_URL=http://localhost:5000
+```
 
-- Buying/Renting: Browse products, use the wishlist to save items, and initiate a chat with the seller.
-- Listing: Users can list products for sale or rent directly from their profile.
-- Order Management: Sellers use the dashboard to track requests, confirm orders, and manage inventory.
-- Admin: Access the admin panel to view platform stats and handle reports.
+---
 
-## Future Improvements
+## 🚀 Deployment
 
-- Payment integration: Automated payment processing for sales and rentals.
-- Mobile responsiveness: Dedicated mobile app or PWA for a better on-site experience.
-- Real-time notifications: Push notifications for messages and order status updates.
+- **Frontend:** Hosted on **Vercel** for optimal performance and edge delivery.
+- **Backend:** Hosted on **Render** utilizing a persistent web service.
+- **Database:** **MongoDB Atlas** provides a scalable cloud database solution.
 
-## Author Section
+---
 
-Aenish Khullar
-Role: Full Stack Developer
+## 📌 Important Notes
+
+- **API URL:** The frontend uses environment-targeted API endpoints; ensure `VITE_API_URL` is set correctly for your environment.
+- **CORS Configuration:** The backend requires the `FRONTEND_URL` to be correctly set in environment variables to allow cross-origin requests.
+- **Service Wake-up:** Since the backend is hosted on a free Render instance, it may experience a short delay (30-60 seconds) during the first load after a period of inactivity.
+
+---
+
+## 🔮 Future Improvements
+
+- **Payment Gateway:** Integration of payment processors (Stripe/Razorpay) for direct transactions.
+- **Advanced Analytics:** Detailed seller dashboards with sales trends and performance metrics.
+- **Enhanced Notifications:** Implementation of browser push notifications and mobile alerts.
+- **UI/UX Optimization:** Continuous refinement of mobile responsiveness and interactive elements.
+- **AI Recommendations:** Smart product suggestions based on user browsing history.
+
+---
+
+## 👤 Author
+
+**Aenish Khullar**
+*Full Stack Developer*
+[GitHub Profile](https://github.com/aenishkhullar)
