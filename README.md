@@ -46,7 +46,7 @@ UniMart is a comprehensive full-stack campus marketplace designed tailored for u
 - Node.js & Express.js
 - Socket.io (Real-time engine)
 - JWT (Secure Authentication)
-- Nodemailer (Email OTP service)
+- Resend (OTP email delivery)
 - Multer & Cloudinary (Image handling and storage)
 - Bcryptjs (Password encryption)
 
@@ -116,15 +116,15 @@ JWT_SECRET=your_jwt_secret_key
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-EMAIL_USER=your_university_email
-EMAIL_PASS=your_email_app_password
+RESEND_API_KEY=resend_api_key
+EMAIL_FROM=resend@email
 OTP_EXPIRES_IN_MINUTES=10
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://your-vercel-url
 ```
 
 ### Frontend (`client/.env`)
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=https://your-render-url
 ```
 
 ---
