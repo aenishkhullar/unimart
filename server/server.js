@@ -19,19 +19,24 @@ connectDB();
 const app = express();
 
 const server = http.createServer(app);
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+  "https://unimart.study",
+  "https://www.unimart.study"
+].filter(Boolean);
+
 const io = new Server(server, {
-    cors: { origin: "*" },
+    cors: { origin: allowedOrigins },
 });
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    process.env.FRONTEND_URL
-  ],
+  origin: allowedOrigins,
   credentials: true
 }));
+
 
 // Routes
 app.use("/api/users", userRoutes);
