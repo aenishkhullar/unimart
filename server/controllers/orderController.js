@@ -351,16 +351,32 @@ export const updateOrderStatus = async (req, res) => {
     const prod = await Product.findById(order.product._id);
     if (prod) {
       // CONFIRMED: reserve stock (decrement availableStock)
-      if (order.type === 'rent' && status === 'confirmed' && !order.stockReserved) {
-        prod.availableStock = Math.max(0, prod.availableStock - 1);
-        order.stockReserved = true;
+      if (status === 'confirmed' && !order.stockReserved) {
+        if (order.type === 'rent') {
+          prod.availableStock = Math.max(0, prod.availableStock - 1);
+          order.stockReserved = true;
+        } else if (order.type === 'buy') {
+          prod.soldCount = (prod.soldCount || 0) + 1;
+          prod.availableStock = Math.max(0, prod.stock - prod.soldCount);
+          if (prod.availableStock === 0) {
+            prod.isSoldOut = true;
+          }
+          order.stockReserved = true;
+        }
         await prod.save();
       }
 
       // CANCELLED: restore stock if it was previously reserved
-      if (order.type === 'rent' && status === 'cancelled' && order.stockReserved && !order.stockRestored) {
-        prod.availableStock = Math.min(prod.stock, prod.availableStock + 1);
-        order.stockRestored = true;
+      if (status === 'cancelled' && order.stockReserved && !order.stockRestored) {
+        if (order.type === 'rent') {
+          prod.availableStock = Math.min(prod.stock, prod.availableStock + 1);
+          order.stockRestored = true;
+        } else if (order.type === 'buy') {
+          prod.soldCount = Math.max(0, (prod.soldCount || 0) - 1);
+          prod.availableStock = Math.max(0, prod.stock - prod.soldCount);
+          prod.isSoldOut = false;
+          order.stockRestored = true;
+        }
         await prod.save();
       }
 
@@ -368,15 +384,6 @@ export const updateOrderStatus = async (req, res) => {
       if (order.type === 'rent' && status === 'returned' && !order.stockRestored) {
         prod.availableStock = Math.min(prod.stock, prod.availableStock + 1);
         order.stockRestored = true;
-        await prod.save();
-      }
-
-      // BUY completed: increment sold count
-      if (order.type === 'buy' && status === 'completed') {
-        prod.soldCount = (prod.soldCount || 0) + 1;
-        if (prod.quantity && prod.soldCount >= prod.quantity) {
-          prod.isSoldOut = true;
-        }
         await prod.save();
       }
     }

@@ -480,11 +480,9 @@ const ProductDetails = () => {
                                         </div>
                                     )}
 
-                                    {product.type === 'rent' && (
-                                        <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>
-                                            Available Units: {product.availableStock || 0}
-                                        </div>
-                                    )}
+                                    <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>
+                                        Available Units: {product.availableStock || 0}
+                                    </div>
 
                                     <button 
                                         className="btn-primary-action"

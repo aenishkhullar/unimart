@@ -459,7 +459,7 @@ const SellerDashboard = () => {
                     </span>
                   </div>
                   <h3 className="order-title">{product.title}</h3>
-                  {product.type === 'rent' && (
+                  {product.type === 'rent' ? (
                     <div className="order-info-row" style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                       <div className="order-info-item">
                         <span className="info-label">Total Stock</span>
@@ -472,6 +472,21 @@ const SellerDashboard = () => {
                       <div className="order-info-item">
                         <span className="info-label">Active Rentals</span>
                         <span className="info-value">{(product.stock || 0) - (product.availableStock || 0)}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="order-info-row" style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                      <div className="order-info-item">
+                        <span className="info-label">Total Stock</span>
+                        <span className="info-value">{product.stock || 0}</span>
+                      </div>
+                      <div className="order-info-item">
+                        <span className="info-label">Available</span>
+                        <span className="info-value">{product.availableStock || 0}</span>
+                      </div>
+                      <div className="order-info-item">
+                        <span className="info-label">Sold Count</span>
+                        <span className="info-value">{product.soldCount || 0}</span>
                       </div>
                     </div>
                   )}
