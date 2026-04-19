@@ -1,114 +1,125 @@
 # UniMart
 
-UniMart is a comprehensive full-stack campus marketplace designed tailored for university ecosystems. It provides a professional, secure platform where students can seamlessly buy, sell, and rent items, fostering a sustainable and collaborative campus community.
+A full-stack campus marketplace built for university ecosystems. UniMart provides a secure, professional platform where students can buy, sell, and rent items — fostering a sustainable and collaborative campus community.
 
-## 🚀 Live Links
-
-- **Frontend Deployment:** [https://unimart-client.vercel.app](https://unimart-client.vercel.app) *(Placeholders)*
-- **Backend Deployment:** [https://unimart-server.onrender.com](https://unimart-server.onrender.com) *(Placeholders)*
-- **GitHub Repository:** [https://github.com/aenishkhullar/unimart](https://github.com/aenishkhullar/unimart)
+**Live Application:** [www.unimart.study](https://www.unimart.study)  
+**Repository:** [github.com/aenishkhullar/unimart](https://github.com/aenishkhullar/unimart)
 
 ---
 
-## ✨ Features
+## Overview
 
-- **Buy and Sell Marketplace:** A complete listing system for student-to-student commerce.
-- **Rental System:** Specialized rental logic with stock management and date-base availability.
-- **Buyer Confirmation Flow:** Secure transaction cycle where buyers confirm receipt of items.
-- **Seller Return Tracking:** Dashboard for sellers to manage active rentals and track returns.
-- **Order Receipt Generation:** Automated professional receipts for all completed transactions.
-- **Wishlist:** Personal collection area for saving items for future purchase or rental.
-- **Real-time Chat:** Instant messaging between buyers and sellers for seamless communication.
-- **Reviews and Ratings:** Peer-to-peer feedback system to build trust within the community.
-- **Secure Authentication:** Email OTP-based registration and login for university verification.
-- **Help Center:** Dedicated support section with FAQs and platform guidance.
-- **Privacy Policy & TOS:** Legally structured policies integrated into the platform.
-- **Admin Dashboard:** Centralized panel for platform moderation and oversight.
-- **User & Product Management:** Robust tools for managing accounts and listings.
-- **Report & Complaint System:** Integrated safety mechanism for reporting issues.
-- **Marketplace Stats:** Real-time analytics and statistics for platform performance.
-- **Toast Notifications:** Smooth and responsive UI feedback using React Hot Toast.
-- **Inventory Management:** Smart handling of sold-out items and restock status.
+UniMart is designed specifically for the university environment, enabling peer-to-peer commerce within a trusted, verified student community. The platform handles the full transaction lifecycle — from listing and discovery to purchase confirmation, rental management, and receipt generation.
 
 ---
 
-## 🛠 Tech Stack
+## Features
+
+**Marketplace**
+- Buy and sell listings with full item management and inventory tracking
+- Rental system with stock management and date-based availability
+- Wishlist for saving items for future consideration
+
+**Transactions**
+- Buyer confirmation flow for secure transaction completion
+- Seller return tracking dashboard for active rental oversight
+- Automated order receipt generation for all completed transactions
+
+**Communication**
+- Real-time chat between buyers and sellers via WebSocket
+- Reviews and ratings system for peer-to-peer trust
+
+**Authentication and Security**
+- Email OTP-based registration and login for university verification
+- JWT-secured sessions with encrypted password storage
+
+**Administration**
+- Admin dashboard for platform moderation and oversight
+- User and product management tools
+- Report and complaint system for issue escalation
+- Real-time marketplace analytics and statistics
+
+**Platform**
+- Help center with FAQs and platform guidance
+- Privacy policy and terms of service integrated into the platform
+- Toast notifications for responsive UI feedback
+
+---
+
+## Tech Stack
 
 **Frontend**
 - React.js (Vite)
-- Vanilla CSS (Custom professional design system)
-- React Router DOM (Navigation)
-- Socket.io-client (Real-time communication)
-- Axios (API requests)
-- React Hot Toast (UI notifications)
+- Vanilla CSS with a custom design system
+- React Router DOM
+- Socket.io-client
+- Axios
+- React Hot Toast
 
 **Backend**
-- Node.js & Express.js
-- Socket.io (Real-time engine)
-- JWT (Secure Authentication)
-- Resend (OTP email delivery)
-- Multer & Cloudinary (Image handling and storage)
-- Bcryptjs (Password encryption)
+- Node.js and Express.js
+- Socket.io
+- JWT authentication
+- Resend for OTP email delivery
+- Multer and Cloudinary for image handling
+- Bcryptjs for password encryption
 
 **Database**
-- MongoDB (Mongoose ODM)
-- MongoDB Atlas (Cloud hosting)
+- MongoDB with Mongoose ODM
+- MongoDB Atlas for cloud hosting
 
 **Deployment**
 - Frontend: Vercel
 - Backend: Render
+- Database: MongoDB Atlas
 
 ---
 
-## 📁 Folder Structure
+## Project Structure
 
-```text
+```
 unimart/
-├── client/                # React frontend (Vite)
-│   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Application views and routes
-│   │   ├── context/       # State management using Context API
-│   │   └── assets/        # Stylesheets and media
-├── server/                # Node.js backend
-│   ├── controllers/       # Business logic for endpoints
-│   ├── models/            # Mongoose schemas
-│   ├── routes/            # API route definitions
-│   ├── middleware/        # Auth and security logic
-│   └── utils/             # Helper services (Email, Cloudinary)
+├── client/                  # React frontend (Vite)
+│   └── src/
+│       ├── components/      # Reusable UI components
+│       ├── pages/           # Application views and routes
+│       ├── context/         # State management (Context API)
+│       └── assets/          # Stylesheets and media
+└── server/                  # Node.js backend
+    ├── controllers/         # Business logic for endpoints
+    ├── models/              # Mongoose schemas
+    ├── routes/              # API route definitions
+    ├── middleware/          # Authentication and security
+    └── utils/               # Helper services (Email, Cloudinary)
 ```
 
 ---
 
-## ⚙️ Setup Instructions
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- A MongoDB Atlas account
+- A Cloudinary account
+- A Resend account for email delivery
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/aenishkhullar/unimart.git
 cd unimart
 ```
 
-### 2. Backend Configuration
+### 2. Configure and Run the Backend
+
 ```bash
 cd server
 npm install
-# Create a .env file based on the Environment Variables section below
-npm run dev
 ```
 
-### 3. Frontend Configuration
-```bash
-cd client
-npm install
-# Create a .env file with VITE_API_URL
-npm run dev
-```
+Create a `.env` file in the `server/` directory with the following variables:
 
----
-
-## 🔑 Environment Variables
-
-### Backend (`server/.env`)
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
@@ -116,47 +127,54 @@ JWT_SECRET=your_jwt_secret_key
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-RESEND_API_KEY=resend_api_key
-EMAIL_FROM=resend@email
+RESEND_API_KEY=your_resend_api_key
+EMAIL_FROM=your_verified_sender_email
 OTP_EXPIRES_IN_MINUTES=10
-FRONTEND_URL=http://your-vercel-url
+FRONTEND_URL=http://localhost:5173
 ```
 
-### Frontend (`client/.env`)
+```bash
+npm run dev
+```
+
+### 3. Configure and Run the Frontend
+
+```bash
+cd client
+npm install
+```
+
+Create a `.env` file in the `client/` directory:
+
 ```env
-VITE_API_URL=https://your-render-url
+VITE_API_URL=http://localhost:5000
+```
+
+```bash
+npm run dev
 ```
 
 ---
 
-## 🚀 Deployment
+## Deployment Notes
 
-- **Frontend:** Hosted on **Vercel** for optimal performance and edge delivery.
-- **Backend:** Hosted on **Render** utilizing a persistent web service.
-- **Database:** **MongoDB Atlas** provides a scalable cloud database solution.
-
----
-
-## 📌 Important Notes
-
-- **API URL:** The frontend uses environment-targeted API endpoints; ensure `VITE_API_URL` is set correctly for your environment.
-- **CORS Configuration:** The backend requires the `FRONTEND_URL` to be correctly set in environment variables to allow cross-origin requests.
-- **Service Wake-up:** Since the backend is hosted on a free Render instance, it may experience a short delay (30-60 seconds) during the first load after a period of inactivity.
+- **CORS:** The `FRONTEND_URL` environment variable on the backend must match the deployed frontend origin exactly.
+- **API URL:** Set `VITE_API_URL` in the frontend environment to point to the correct backend deployment URL.
+- **Cold Starts:** The backend is hosted on a free Render instance and may take 30–60 seconds to respond after a period of inactivity.
 
 ---
 
-## 🔮 Future Improvements
+## Roadmap
 
-- **Payment Gateway:** Integration of payment processors (Stripe/Razorpay) for direct transactions.
-- **Advanced Analytics:** Detailed seller dashboards with sales trends and performance metrics.
-- **Enhanced Notifications:** Implementation of browser push notifications and mobile alerts.
-- **UI/UX Optimization:** Continuous refinement of mobile responsiveness and interactive elements.
-- **AI Recommendations:** Smart product suggestions based on user browsing history.
+- Payment gateway integration (Stripe / Razorpay)
+- Advanced seller analytics with sales trends and performance metrics
+- Browser push notifications and mobile alerts
+- Mobile responsiveness and UI/UX refinements
+- AI-powered product recommendations based on browsing history
 
 ---
 
-## 👤 Author
+## Author
 
-**Aenish Khullar**
-*Full Stack Developer*
+**Aenish Khullar** — Full Stack Developer  
 [GitHub Profile](https://github.com/aenishkhullar)
